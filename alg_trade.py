@@ -3,10 +3,11 @@ import numpy as np
 import time
 
 
-SEC_KEY = ''
-PUB_KEY = ''
+PUB_KEY = 'PKQLXOF7IY3UVJGF7FCN'
+SEC_KEY = 'cgDK58o6UjH23JMNOxXLyOqgo39zu7jUmIDPjVZP'
 BASE_URL = 'https://paper-api.alpaca.markets'
-api = tradeapi.REST(key_id= PUB_KEY, secret_key=SEC_KEY, base_url=BASE_URL)
+api = tradeapi.REST(key_id=PUB_KEY, secret_key=SEC_KEY, base_url=BASE_URL)
+
 
 
 def get_data():
