@@ -2,18 +2,19 @@ import  backtrader
 
 
 class TradingStrategy(backtrader.Strategy):
-    params = (('pfast', 7), ('pslow', 25),)
+    params = (('pfast', 5), ('pslow', 12),)
     def __init__(self):
         self.datasclose = self.datas[0].close
         self.order = None
 
-        self.slow_sma = backtrader.indicators.MovingAverageSimple(period=self.params.pslow)
         self.fast_sma = backtrader.indicators.MovingAverageSimple(period=self.params.pfast)
+        self.slow_sma = backtrader.indicators.MovingAverageSimple(period=self.params.pslow)
 
+        self.sma_crossover = backtrader.indicators.CrossOver(self.fast_sma, self.slow_sma)
 
     def log(self, text):
         dt = self.datas[0].datetime.date(0)
-        print(f'{dt.isoformat()}, {text}')
+        # print(f'{dt.isoformat()}, {text}')
 
     def notify_order(self, order):
         if order.status in [order.Submitted, order.Accepted]:
@@ -39,7 +40,7 @@ class TradingStrategy(backtrader.Strategy):
         # sprawdza, czy posiadamy pozycję
         if not self.position:
             # jeśli nastąpiło przebicie szybką sma wolnej w górę, to otwieramy pozycję długą
-            if self.fast_sma[0] > self.slow_sma[0] and  self.fast_sma[-1] < self.slow_sma[-1]:
+            if self.sma_crossover > 0:
                 self.log(f'Kupuję po {self.datasclose[0]:.2f}')
                 # pilnujemy też, by drugi raz nie kupić
                 self.order = self.buy()
@@ -52,7 +53,7 @@ class TradingStrategy(backtrader.Strategy):
                 '''
 
         else:
-            if self.fast_sma[0] < self.slow_sma[0] and self.fast_sma[-1] > self.slow_sma[-1]:
+            if self.sma_crossover < 0:
                 self.log(f'Zamykam pozycję po {self.datasclose[0]:.2f}')
                 self.order = self.close()
                 '''
