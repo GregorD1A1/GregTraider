@@ -1,7 +1,7 @@
 import  backtrader
 
 
-class TradingStrategy(backtrader.Strategy):
+class Crossover(backtrader.Strategy):
     params = (('pfast', 5), ('pslow', 12),)
     def __init__(self):
         self.datasclose = self.datas[0].close
@@ -14,7 +14,7 @@ class TradingStrategy(backtrader.Strategy):
 
     def log(self, text):
         dt = self.datas[0].datetime.date(0)
-        # print(f'{dt.isoformat()}, {text}')
+        print(f'{dt.isoformat()}, {text}')
 
     def notify_order(self, order):
         if order.status in [order.Submitted, order.Accepted]:
@@ -62,3 +62,24 @@ class TradingStrategy(backtrader.Strategy):
                 self.log(f'Zamykam pozycję po {self.datasclose[0]:.2f}')
                 self.order = self.close()
 '''
+
+class ATR(backtrader.Strategy):
+    params = (('period', 14),)
+    def log(self, text):
+        dt = self.datas[0].datetime.date(0)
+        print(f'{dt.isoformat()}, {text}')
+
+    def __init__(self):
+        self.dataclose = self.datas[0].close
+        self.datalow = self.datas[0].low
+        self.datahigh = self.datas[0].high
+
+    def next(self):
+        range_total = 0
+        for i in range(-13, 1):
+            true_range = self.datahigh[i] - self.datalow[i]
+            range_total += true_range
+        ATR = range_total / self.params.period
+
+        self.log(f'Close: {self.dataclose[0]:.2f}, ATR: {ATR:.4f}')
+

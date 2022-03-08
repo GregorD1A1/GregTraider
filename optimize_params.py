@@ -3,6 +3,8 @@ from strategies import TradingStrategy
 import datetime
 
 
+
+
 beginning_cash = 10000
 
 cerebro = backtrader.Cerebro(optreturn=False)
@@ -46,5 +48,3 @@ if __name__ == '__main__':
     print(f'Z {start_portfolio_value:.2f} pkt. zrobiliśmy {end_portfolio_value:.2f} pkt.. Zysk wynosi: {zysk:.2f} %')
 
     cerebro.plot()
-
-
