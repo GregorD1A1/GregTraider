@@ -1,4 +1,4 @@
-import  backtrader
+import backtrader
 
 
 class Crossover(backtrader.Strategy):
@@ -65,6 +65,7 @@ class Crossover(backtrader.Strategy):
 
 class ATR(backtrader.Strategy):
     params = (('period', 14),)
+
     def log(self, text):
         dt = self.datas[0].datetime.date(0)
         print(f'{dt.isoformat()}, {text}')
@@ -82,4 +83,64 @@ class ATR(backtrader.Strategy):
         ATR = range_total / self.params.period
 
         self.log(f'Close: {self.dataclose[0]:.2f}, ATR: {ATR:.4f}')
+
+
+class Sentiment(backtrader.Strategy):
+    params = (('period', 10), ('devfactor', 1),)
+
+    def __init__(self):
+        self.dataclose = self.datas[0].close
+        self.sentiment = self.datas[1].close
+        self.order = None
+
+        self.bbands = backtrader.indicators.BollinderBands(
+            self.sentiment, period=self.params.period, devfactor=self.params.devfactor)
+
+    def log(self, text):
+        dt = self.datas[0].datetime.date(0)
+        print(f'{dt.isoformat()}, {text}')
+
+    def notify_order(self, order):
+        if order.status in [order.Submitted, order.Accepted]:
+            return
+
+        if order.status in [order.Completed]:
+            if order.isbuy():
+                self.log(f'Kupione, {order.executed.price:.2f}')
+            elif order.issell():
+                self.log(f'Sprzedane, {order.executed.price:.2f}')
+            self.bar_executed = len(self)
+
+        elif order.status in [order.Canceled, order.Margin, order.Rejected]:
+            self.log('Nie udało się zrealizować zamówienia')
+
+        # reset zamówienia
+        self.order = None
+
+    def next(self):
+        # jeśli jest otwarte zamówienie
+        if self.order:
+            return
+
+        # czy wartość sentymentu jest powyżej linii górnej
+        if self.sentiment > self.bbands.lines.top[0] and not self.position:
+            self.log(f'Sentiment Value: {self.sentiment[0]:.2f}, Top band: {self.bbands.lines.top[0]:.2f}')
+            self.log(f'Kupujemy po: {self.dataclose[0]:.2f}')
+            self.order = self.buy()
+
+        # czy wartość sentymentu jest poniżej linii dolnej
+        elif self.sentiment > self.bbands.lines.bot[0] and not self.position:
+            self.log(
+                f'Sentiment Value: {self.sentiment[0]:.2f}, Bottom band: {self.bbands.lines.bot[0]:.2f}')
+            self.log(f'Sprzedajemy po: {self.dataclose[0]:.2f}')
+            self.order = self.sell()
+
+        # zamykamy, jeśli powyzsże warnki nie są spełnione
+        else:
+            if self.position:
+                self.log(f'Google Sentiment Value: {self.sentiment[0]:.2f}')
+                self.log(f'Bottom band: {self.bbands.lines.bot[0]:.2f}')
+                self.log(f'Top band: {self.bbands.lines.top[0]:.2f}')
+                self.log(f'Zamykam pozycję po {self.datasclose[0]:.2f}')
+                self.order = self.close()
 

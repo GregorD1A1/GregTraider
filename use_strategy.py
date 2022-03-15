@@ -9,11 +9,28 @@ cerebro = backtrader.Cerebro(optreturn=False)
 
 cerebro.addstrategy(ATR)
 
-data = backtrader.feeds.YahooFinanceCSVData(
-    dataname='historical_data/STB.OL.csv',
+data1 = backtrader.feeds.YahooFinanceCSVData(
+    dataname='historical_data/ETH-USD.csv',
     fromdate=datetime.datetime(2019, 1, 1),
     todate=datetime.datetime(2020, 1, 1))
-cerebro.adddata(data)
+cerebro.adddata(data1)
+
+data2 = backtrader.feeds.GenericCSVData(
+    dataname='historical_data/ETH_GTrends.csv',
+    fromdate=datetime.datetime(2018, 1, 1),
+    todate=datetime.datetime(2020, 1, 1),
+    nullvalue=0.0,
+    dtformat=('%Y-%m-%d'),
+    datetime=0,
+    time=-1,
+    high=-1,
+    low=-1,
+    open=-1,
+    close=1,
+    volume=-1,
+    openinterest=-1,
+    timeframe=bt.TimeFrame.Weeks)
+cerebro.adddata(data2)
 
 cerebro.broker.setcash(beginning_cash)
 # cerebro.broker.setcommission(0.001)
