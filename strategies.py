@@ -92,13 +92,15 @@ class Sentiment(backtrader.Strategy):
         self.dataclose = self.datas[0].close
         self.sentiment = self.datas[1].close
         self.order = None
+        self.log_list = []
 
-        self.bbands = backtrader.indicators.BollinderBands(
+        self.bbands = backtrader.indicators.BollingerBands(
             self.sentiment, period=self.params.period, devfactor=self.params.devfactor)
 
     def log(self, text):
         dt = self.datas[0].datetime.date(0)
         print(f'{dt.isoformat()}, {text}')
+        self.log_list.append(f'{dt.isoformat()}, {text}')
 
     def notify_order(self, order):
         if order.status in [order.Submitted, order.Accepted]:
@@ -123,24 +125,26 @@ class Sentiment(backtrader.Strategy):
             return
 
         # czy wartość sentymentu jest powyżej linii górnej
-        if self.sentiment > self.bbands.lines.top[0] and not self.position:
-            self.log(f'Sentiment Value: {self.sentiment[0]:.2f}, Top band: {self.bbands.lines.top[0]:.2f}')
-            self.log(f'Kupujemy po: {self.dataclose[0]:.2f}')
+        if self.sentiment[0] > self.bbands.lines.top[0] and not self.position:
+            self.log(f'Sentiment Value: {self.sentiment[0]:.2f}, Top band: {self.bbands.lines.top[0]:.2f},'
+                     f'Kupujemy po: {self.dataclose[0]:.2f}')
             self.order = self.buy()
 
         # czy wartość sentymentu jest poniżej linii dolnej
-        elif self.sentiment > self.bbands.lines.bot[0] and not self.position:
-            self.log(
-                f'Sentiment Value: {self.sentiment[0]:.2f}, Bottom band: {self.bbands.lines.bot[0]:.2f}')
-            self.log(f'Sprzedajemy po: {self.dataclose[0]:.2f}')
+        elif self.sentiment[0] < self.bbands.lines.bot[0] and not self.position:
+            self.log(f'Sentiment Value: {self.sentiment[0]:.2f}, Bottom band: {self.bbands.lines.bot[0]:.2f},'
+                f'Sprzedajemy po: {self.dataclose[0]:.2f}')
             self.order = self.sell()
 
         # zamykamy, jeśli powyzsże warnki nie są spełnione
         else:
             if self.position:
-                self.log(f'Google Sentiment Value: {self.sentiment[0]:.2f}')
-                self.log(f'Bottom band: {self.bbands.lines.bot[0]:.2f}')
-                self.log(f'Top band: {self.bbands.lines.top[0]:.2f}')
-                self.log(f'Zamykam pozycję po {self.datasclose[0]:.2f}')
+                self.log(f'Google Sentiment Value: {self.sentiment[0]:.2f}, Bottom band: {self.bbands.lines.bot[0]:.2f},'
+                         f'Top band: {self.bbands.lines.top[0]:.2f}, Zamykam pozycję po {self.dataclose[0]:.2f}')
                 self.order = self.close()
+
+    def stop(self):
+        with open('custom_sentiment_log.csv', 'w') as log_file:
+            for line in self.log_list:
+                log_file.write(line + '\n')
 
