@@ -1,42 +1,25 @@
-import backtrader
-from strategies import *
+import backtrader as bt
+from strategies import RSI1
 import datetime
 
 
-beginning_cash = 10000
+beginning_cash = 1000
 
-cerebro = backtrader.Cerebro(optreturn=False)
+cerebro = bt.Cerebro(optreturn=False)
 
-cerebro.addstrategy(Sentiment)
+cerebro.addstrategy(RSI1)
 
-data1 = backtrader.feeds.YahooFinanceCSVData(
-    dataname='historical_data/ETH-USD.csv',
+data1 = bt.feeds.YahooFinanceCSVData(
+    dataname='historical_data/CEZ.PR.csv',
     fromdate=datetime.datetime(2018, 1, 1),
-    todate=datetime.datetime(2022, 1, 1))
+    todate=datetime.datetime(2019, 1, 1))
 cerebro.adddata(data1)
 
-data2 = backtrader.feeds.GenericCSVData(
-    dataname='historical_data/ETH_GTrends.csv',
-    fromdate=datetime.datetime(2018, 1, 1),
-    todate=datetime.datetime(2022, 1, 1),
-    nullvalue=0.0,
-    dtformat=('%Y-%m-%d'),
-    datetime=0,
-    time=-1,
-    high=-1,
-    low=-1,
-    open=-1,
-    close=1,
-    volume=-1,
-    openinterest=-1,
-    timeframe=backtrader.TimeFrame.Weeks)
-cerebro.adddata(data2)
-
 cerebro.broker.setcash(beginning_cash)
-cerebro.broker.setcommission(0.001)
+cerebro.broker.setcommission(0.002)
 start_portfolio_value = cerebro.broker.get_value()
 # ustawiamy, ile akcji naraz kupujemy
-cerebro.addsizer(backtrader.sizers.FixedSize, stake=100)
+cerebro.addsizer(bt.sizers.FixedSize, stake=1)
 
 if __name__ == '__main__':
     cerebro.run()
