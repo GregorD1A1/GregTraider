@@ -4,44 +4,30 @@ import datetime
 import quantstats
 
 
-beginning_cash = 20000
+beginning_cash = 200000
 
 cerebro = bt.Cerebro(optreturn=False)
 
-data1 = bt.feeds.GenericCSVData(
-    dataname='historical_data/W20_30m.csv',
-    fromdate=datetime.datetime(2021, 9, 23),
-    todate=datetime.datetime(2022, 3, 25),
-    dtformat=('%b %d %Y %I:%M:%S %p'),
-    nullvalue=0.0,
-    high = 4,
-    low = 3,
-    open = 2,
-    close = 1,
-    volume = 5,
-    openinterest = -1,
-    timeframe=bt.TimeFrame.Ticks
-    )
-
-data2 = bt.feeds.GenericCSVData(
+data = bt.feeds.GenericCSVData(
     dataname='historical_data/DE30_60m.csv',
-    fromdate=datetime.datetime(2021, 9, 23),
-    todate=datetime.datetime(2022, 3, 25),
+    fromdate=datetime.datetime(2021, 4, 1),
+    todate=datetime.datetime(2021, 11, 25),
     dtformat=('%b %d %Y %I:%M:%S %p'),
     nullvalue=0.0,
-    high = 4,
-    low = 3,
-    open = 2,
-    close = 1,
-    volume = 5,
-    openinterest = -1,
+    high=4,
+    low=3,
+    open=2,
+    close=1,
+    volume=5,
+    openinterest=-1,
     timeframe=bt.TimeFrame.Ticks
     )
-cerebro.adddata(data2)
+cerebro.adddata(data)
 
-#cerebro.addstrategy(RSI1, upper_rsi_trsh = 70, lower_rsi_trsh = 30, close_offset = 49)
+cerebro.addstrategy(RSI1, close_offset=49)
 #cerebro.addstrategy(TrendFollowing, ema_period=200, trend_detection_delay=70)   # dla WIGu
-cerebro.addstrategy(TrendFollowing, ema_period=350, trend_detection_delay=20)
+#cerebro.addstrategy(TrendFollowing, trend_detection_delay=15, stop_loss_spacing=0.024, peak_detection_price_spacing1=0.008,
+#                  peak_detection_price_spacing2=0.002, ema_opening_price_spacing=0.004)
 
 cerebro.broker.setcash(beginning_cash)
 #cerebro.broker.setcommission(0.001)
