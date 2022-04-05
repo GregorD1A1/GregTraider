@@ -10,8 +10,8 @@ cerebro = bt.Cerebro(optreturn=False)
 
 data = bt.feeds.GenericCSVData(
     dataname='historical_data/DE30_60m.csv',
-    fromdate=datetime.datetime(2021, 4, 1),
-    todate=datetime.datetime(2021, 11, 25),
+    fromdate=datetime.datetime(2020, 11, 1),
+    todate=datetime.datetime(2021, 5, 25),
     dtformat=('%b %d %Y %I:%M:%S %p'),
     nullvalue=0.0,
     high=4,
@@ -24,7 +24,7 @@ data = bt.feeds.GenericCSVData(
     )
 cerebro.adddata(data)
 
-cerebro.addstrategy(RSI1, close_offset=49)
+cerebro.addstrategy(RSI1)
 #cerebro.addstrategy(TrendFollowing, ema_period=200, trend_detection_delay=70)   # dla WIGu
 #cerebro.addstrategy(TrendFollowing, trend_detection_delay=15, stop_loss_spacing=0.024, peak_detection_price_spacing1=0.008,
 #                  peak_detection_price_spacing2=0.002, ema_opening_price_spacing=0.004)

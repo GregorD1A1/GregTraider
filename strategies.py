@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 class RSI1(bt.Strategy):
     params = dict(rsi_period=14, default_upper_rsi_trsh=70, default_lower_rsi_trsh=30, close_offset=14, ema_period=350,
-                  trend_detection_delay=70, rsi_per_ema_angle_coeff=70000)
+                  trend_detection_delay=70, rsi_per_ema_angle_coeff=70000, ema_max_angle_counter_trend_opening=0.00035)
 
     def log(self, text):
         dt = self.datas[0].datetime.datetime(0)
@@ -58,11 +58,6 @@ class RSI1(bt.Strategy):
         if self.order:
             return
 
-        self.w_tredzie = True
-        for val in self.przeciecia_ema.get(size=self.p.trend_detection_delay):
-            if val:
-                self.w_tredzie = False
-
         self.make_transaction()
 
     def make_transaction(self):
@@ -71,8 +66,10 @@ class RSI1(bt.Strategy):
             # zamykamy pozycję krótką
             if self.position and self.position.size < 0:
                 self.order = self.close()
-            # otwieramy pozycje
-            if len(self) - self.czas_transakcji > self.params.close_offset:
+            # otwieramy pozycje długą
+            # by nie otwierać natychmiast po poprzedniej transakcji i nie otwierać przeciw mocnemu trendowi
+            if len(self) - self.czas_transakcji > self.params.close_offset and \
+                    self.kat_pochylenia_ema_smoothed > -self.p.ema_max_angle_counter_trend_opening:
                 self.log(f'Kupujemy po: {self.dataclose[0]:.2f}')
                 self.order = self.buy()
 
@@ -81,8 +78,10 @@ class RSI1(bt.Strategy):
             # zamykamy pozycję długą
             if self.position and self.position.size > 0:
                 self.order = self.close()
-            # otwieramy pozycje
-            if len(self) - self.czas_transakcji > self.params.close_offset:
+            # otwieramy pozycje krótką
+            # by nie otwierać natychmiast po poprzedniej transakcji i nie otwierać przeciw mocnemu trendowi
+            if len(self) - self.czas_transakcji > self.params.close_offset and \
+                    self.kat_pochylenia_ema_smoothed < self.p.ema_max_angle_counter_trend_opening:
                 self.log(f'Sprzedajemy po: {self.dataclose[0]:.2f}')
                 self.order = self.sell()
 
