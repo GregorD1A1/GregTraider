@@ -1,5 +1,5 @@
 import backtrader as bt
-from strategies import RSI1, TrendFollowing
+from RSI_strategy import RSI1
 import datetime
 import quantstats
 
@@ -9,9 +9,9 @@ beginning_cash = 200000
 cerebro = bt.Cerebro(optreturn=False)
 
 data = bt.feeds.GenericCSVData(
-    dataname='historical_data/DE30_60m.csv',
-    fromdate=datetime.datetime(2020, 11, 1),
-    todate=datetime.datetime(2021, 5, 25),
+    dataname='historical_data/W20_60m.csv',
+    fromdate=datetime.datetime(2020, 3, 1),
+    todate=datetime.datetime(2020, 12, 30),
     dtformat=('%b %d %Y %I:%M:%S %p'),
     nullvalue=0.0,
     high=4,

@@ -2,13 +2,13 @@ from xAPIConnector import login
 import time
 import pandas as pd
 
-symbol = 'BRAComp'
-period = 1440
+symbol = 'W20'
+period = 60
 client, ssid = login()
 
 arguments = {'info': {
     'period': period,   # 30-minutowe odstępy
-	'start': (time.time() - 640000000) * 1000,   # ta duża liczba to pół roku w sekundach, mnożymy razy 1000 bo potrzebujemy wyniku w milisekundach
+	'start': (time.time() - 64000000) * 1000,   # ta duża liczba to pół roku w sekundach, mnożymy razy 1000 bo potrzebujemy wyniku w milisekundach
 	'symbol': symbol
     }}
 
