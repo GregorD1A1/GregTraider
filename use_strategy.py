@@ -4,14 +4,14 @@ import datetime
 import quantstats
 
 
-beginning_cash = 3000
+beginning_cash = 300000
 
 cerebro = bt.Cerebro(optreturn=False)
 
 data = bt.feeds.GenericCSVData(
-    dataname='historical_data/DE30_5m.csv',
-    fromdate=datetime.datetime(2022, 3, 4),
-    todate=datetime.datetime(2022, 3, 20),
+    dataname='historical_data/US500_5m.csv',
+    #fromdate=datetime.datetime(2022, 4, 12),
+    #todate=datetime.datetime(2022, 4, 14),
     dtformat=('%b %d %Y %I:%M:%S %p'),
     nullvalue=0.0,
     high=4,

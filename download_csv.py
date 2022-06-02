@@ -3,7 +3,7 @@ import time
 import pandas as pd
 
 
-def get_dataframe(client, symbol, period=5, back_time=300000):
+def get_dataframe(client, symbol, period=5, back_time=500000):
     arguments = {'info': {
         'period': period,
         'start': (time.time() - back_time) * 1000,
@@ -31,11 +31,11 @@ def get_dataframe(client, symbol, period=5, back_time=300000):
 
 
 if __name__ == '__main__':
-    symbol = 'US100'
+    symbol = 'US500'
     period = 5
     client, ssid = login()
 
-    dataframe = get_dataframe(symbol=symbol, period=period, back_time=300000, client=client)
+    dataframe = get_dataframe(symbol=symbol, period=period, back_time=10000000, client=client)
     dataframe.to_csv(f'historical_data/{symbol}_{period}m.csv', index=False)
 
     client.disconnect()

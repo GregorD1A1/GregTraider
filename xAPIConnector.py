@@ -10,10 +10,10 @@ DEBUG = True
 
 #default connection properites
 DEFAULT_XAPI_ADDRESS        = 'xapi.xtb.com'
-DEFAULT_XAPI_PORT           = 5112      # release
-DEFUALT_XAPI_STREAMING_PORT = 5113      # release
-#DEFAULT_XAPI_PORT           = 5124      # demo
-#DEFUALT_XAPI_STREAMING_PORT = 5125      # demo
+#DEFAULT_XAPI_PORT           = 5112      # release
+#DEFUALT_XAPI_STREAMING_PORT = 5113      # release
+DEFAULT_XAPI_PORT           = 5124      # demo
+DEFUALT_XAPI_STREAMING_PORT = 5125      # demo
 
 # wrapper name and version
 WRAPPER_NAME    = 'python'
@@ -302,7 +302,8 @@ def procNewsExample(msg):
     
 def login():
     # enter your login credentials here
-    userId = "2148103"
+    #userId = "2148103"     # real PLN
+    userId = "13311052"     # demo EUR
     password = "XdzikA5e"
 
     # create & connect to RR socket
@@ -345,17 +346,15 @@ def main():
 	}'''
     #arguments = {'tradeTransInfo': tradeTransInfo}
     #resp = client.commandExecute('tradeTransaction', arguments)
-
-
+    #arguments = {'openedOnly': True}
+    #resp = client.commandExecute('getTrades', arguments)
     # create & connect to Streaming socket with given ssID
     # and functions for processing ticks, trades, profit and tradeStatus
     sclient = APIStreamClient(ssId=ssid, tickFun=procTickExample, tradeFun=procTradeExample, profitFun=procProfitExample, tradeStatusFun=procTradeStatusExample)
 
     # subscribe for trades
     #sclient.subscribeTrades()
-
     #sclient.subscribeBalance()
-
     # subscribe for prices
     #sclient.subscribePrices(['EURUSD', 'EURGBP', 'EURJPY'])
 

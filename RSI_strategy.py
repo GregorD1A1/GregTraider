@@ -103,7 +103,7 @@ class RSI1(bt.Strategy):
     # obliczenie progów RSI w zależności od kątu pochylenia EMA
     def upper_trsh(self):
         # górny
-        if self.kat_pochylenia_ema >= 0:
+        if self.kat_pochylenia_ema_smoothed >= 0:
             trsh = self.p.default_high_rsi_trsh + self.kat_pochylenia_ema_smoothed * self.p.rsi_per_ema_angle_coeff2
             # próg górny, by nie składał transakcji na szczytkach trendu zgodnie z trendem
             if trsh > self.p.rsi_high_trsh_max: trsh = self.p.rsi_high_trsh_max
@@ -118,7 +118,7 @@ class RSI1(bt.Strategy):
 
     def lower_trsh(self):
         # dolny
-        if self.kat_pochylenia_ema <= 0:
+        if self.kat_pochylenia_ema_smoothed <= 0:
             trsh = self.p.default_low_rsi_trsh + self.kat_pochylenia_ema_smoothed * self.p.rsi_per_ema_angle_coeff2
             # próg górny, by nie składał transakcji na szczytkach trendu zgodnie z trendem
             if trsh < self.p.rsi_low_trsh_min: trsh = self.p.rsi_low_trsh_min
