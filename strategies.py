@@ -1,8 +1,4 @@
-from xAPIConnector import login
-from download_csv import get_dataframe
-from RSI_strategy import RSI1
 import time
-import schedule
 import numpy as np
 import pandas as pd
 import pandas_ta as pdta
@@ -37,8 +33,8 @@ def get_data(symbol, period, client):
     return dane
 
 
-class RSIRelease():
-    def __init__(self, symbol, period):
+class RSIStrategy():
+    def __init__(self):
         self.rsi_period = 14
         self.default_low_rsi_trsh = 30
         self.default_high_rsi_trsh = 70
@@ -48,27 +44,28 @@ class RSIRelease():
         self.rsi_high_trsh_max = 70
         self.close_offset = 10
         self.rsi_peak_detection_offset = 8
-        self.ema_period = 200
+        self.ema_period = 250
         self.rsi_per_ema_angle_coeff1 = 100000
         self.rsi_per_ema_angle_coeff2 = 25000
+        self.plot_indicators_dict = {'rsi': None, 'ema': None, 'rsi_upper_trsh': None, 'rsi_lower_trsh': None}
 
-        # obliczanie odstępu czasowego z odstępu między słupkami
-        # odejmujemy pół okresu jako zapas na niedokładność
-        self.close_offset_time = timedelta(minutes=self.close_offset * period - period / 2)
-
-        # początkowy czas, bardzo dawni
-        self.czas_transakcji = datetime.now() - timedelta(weeks=4)
-        self.symbol = symbol
+        # odstęp, po którym ma zacząć się symulacja w przypadku backtradingu
+        self.simulation_delay_period = max(self.rsi_period, self.ema_period)
 
     def next(self, dataframe, client):
         # kalkulacja wskaźników
-        self.rsi = pdta.rsi(dataframe['Close'], length=14)
-        self.ema = pdta.ema(dataframe['Close'], length=250)
+        self.rsi = pdta.rsi(dataframe['Close'], length=self.rsi_period)
+        self.ema = pdta.ema(dataframe['Close'], length=self.ema_period)
         self.kat_pochylenia_ema = self.ema.diff() / self.ema
         self.kat_pochylenia_ema_smoothed = pdta.sma(self.kat_pochylenia_ema, length=10)
+        self.rsi_upper_trsh = self.upper_trsh()
+        self.rsi_lower_trsh = self.lower_trsh()
+
+        self.plot_indicators_dict = {'rsi': self.rsi.iloc[-1], 'ema': self.ema.iloc[-1], 'rsi_upper_trsh': self.rsi_upper_trsh,
+                                     'rsi_lower_trsh': self.rsi_lower_trsh}
+
         self.client = client
 
-        # akcje
         self.if_close_long()
         self.if_close_short()
         self.if_open_long()
@@ -77,75 +74,45 @@ class RSIRelease():
     # sprawdza, czy otwierać pozycję długą
     def if_open_long(self):
         # kupujemy w dołku RSI
-        if self.rsi.iloc[-2] < self.lower_trsh() and self.rsi.iloc[-1] > \
+        if self.rsi.iloc[-2] < self.rsi_lower_trsh and self.rsi.iloc[-1] > \
                 self.rsi.iloc[-2] + self.rsi_peak_detection_offset:
             # by nie otwierać natychmiast po poprzedniej transakcji i nie otwierać przeciw mocnemu trendowi
-            if datetime.now() - self.czas_transakcji > self.close_offset_time:
+            if self.no_pos_open_last_time(self.close_offset):
                 self.open_long()
+                print('open long')
+                #return True
 
     # sprawdza, czy otwierać pozycję krótką
     def if_open_short(self):
         # Sprzedajemy na szczycie RSI
-        if self.rsi.iloc[-2] > self.upper_trsh() and self.rsi.iloc[-1] < \
+        if self.rsi.iloc[-2] > self.rsi_upper_trsh and self.rsi.iloc[-1] < \
                 self.rsi.iloc[-2] - self.rsi_peak_detection_offset:
 
             # by nie otwierać natychmiast po poprzedniej transakcji
-            if datetime.now() - self.czas_transakcji > self.close_offset_time:
+            if self.no_pos_open_last_time(self.close_offset):
                 self.open_short()
+                print('open short')
+                #return True
 
     # sprawdza, czy zamykać pozycję długą
     def if_close_long(self):
         # Sprzedajemy w dołku RSI
-        if self.rsi.iloc[-2] > self.upper_trsh() and self.rsi.iloc[-1] < self.rsi.iloc[-2]:
-            print('dzik1')
+        if self.rsi.iloc[-2] > self.rsi_upper_trsh and self.rsi.iloc[-1] < self.rsi.iloc[-2]:
             # zamykamy pozycję długą
             if self.opened_pos_dir() == 'buy':
-                print('dzik2')
                 self.close_long()
+                print('close long')
+                #return True
 
     # sprawdza, czy zamykać pozycję krótką
     def if_close_short(self):
         # Kupujemy na szczycie RSI
-        if self.rsi.iloc[-2] < self.lower_trsh() and self.rsi.iloc[-1] > self.rsi.iloc[-2]:
-            print('dzik1')
+        if self.rsi.iloc[-2] < self.rsi_lower_trsh and self.rsi.iloc[-1] > self.rsi.iloc[-2]:
             # zamykamy pozycję krótką
             if self.opened_pos_dir() == 'sell':
-                print('dzik2')
                 self.close_short()
-
-    def open_long(self):
-        self.trade_transaction(self.symbol, type=0, cmd=0)
-
-        self.czas_transakcji = datetime.now()
-
-    def open_short(self):
-        self.trade_transaction(self.symbol, type=0, cmd=1)
-
-        self.czas_transakcji = datetime.now()
-
-    def close_long(self):
-        arguments = {'openedOnly': True}
-        resp = self.client.commandExecute('getTrades', arguments)
-        # iterujemy przez listę słowników z pozycjami
-        for position in resp['returnData']:
-            print('dzik3')
-            # sprawdzamy, czy mamy taką pozycję
-            if position['symbol'] == self.symbol:
-                if position['cmd'] == 0:
-                    order_nr = position['order']
-                    self.trade_transaction(self.symbol, type=2, order=order_nr)
-
-    def close_short(self):
-        arguments = {'openedOnly': True}
-        resp = self.client.commandExecute('getTrades', arguments)
-        # iterujemy przez listę słowników z pozycjami
-        for position in resp['returnData']:
-            print('dzik3')
-            # sprawdzamy, czy mamy taką pozycję
-            if position['symbol'] == self.symbol:
-                if position['cmd'] == 1:
-                    order_nr = position['order']
-                    self.trade_transaction(self.symbol, type=2, order=order_nr)
+                print('close short')
+                #return True
 
     # obliczenie progów RSI w zależności od kątu pochylenia EMA
     def upper_trsh(self):
@@ -177,51 +144,20 @@ class RSIRelease():
             if trsh > self.rsi_low_trsh_max: trsh = self.rsi_low_trsh_max
             return trsh
 
-    # funkcje, związane z API
+    def open_long(self):
+        pass
+
+    def open_short(self):
+        pass
+
+    def close_long(self):
+        pass
+
+    def close_short(self):
+        pass
+
     def opened_pos_dir(self):
-        arguments = {'openedOnly': True}
-        resp = self.client.commandExecute('getTrades', arguments)
-        # iterujemy przez listę słowników z pozycjami
-        for position in resp['returnData']:
-            # sprawdzamy, czy mamy taką pozycję
-            if position['symbol'] == self.symbol:
-                if position['cmd'] == 0:
-                    return 'buy'
-                elif position['cmd'] == 1:
-                    return 'sell'
-        return False
+        pass
 
-    ## type: 0 - open, 2 - close; cmd: 0 - buy, 1 - sell
-    def trade_transaction(self, symbol, type, cmd=0, order=0, volume=0.01):
-        tradeTransInfo = {
-            "cmd": cmd,
-            "order": order,
-            "price": 10,
-            "symbol": symbol,
-            "type": type,
-            "volume": volume
-        }
-        arguments = {'tradeTransInfo': tradeTransInfo}
-        self.client.commandExecute('tradeTransaction', arguments)
-
-
-def trading():
-    # logujemy się
-    client, ssid = login()
-
-    data = get_dataframe(client, symbol, period, 500000)
-    strategy.next(data, client)
-
-    # odpinamy się
-    client.disconnect()
-
-
-period = 5
-symbol = 'US30'
-strategy = RSIRelease(symbol, period)
-trading()
-
-schedule.every(5).minutes.do(trading)
-while True:
-    schedule.run_pending()
-    time.sleep(1)
+    def no_pos_open_last_time(self, steps_offset):
+        pass

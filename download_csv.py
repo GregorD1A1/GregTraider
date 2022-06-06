@@ -1,6 +1,7 @@
 from xAPIConnector import login
 import time
 import pandas as pd
+from datetime import datetime
 
 
 def get_dataframe(client, symbol, period=5, back_time=500000):
@@ -19,7 +20,9 @@ def get_dataframe(client, symbol, period=5, back_time=500000):
     dane = []
     # pętla, obliczająca cenę zamknęcia i tworząca listę z datami i cenami zamknięcia
     for record in resp['returnData']['rateInfos']:
-        dane.append({'DatoCzas': record['ctmString'].replace(',', ''),
+        datoczas_object = datetime.strptime(record['ctmString'], '%b %d, %Y, %I:%M:%S %p')
+        datoczas_str = datoczas_object.strftime('%H:%M %d.%m.%y')
+        dane.append({'DatoCzas': datoczas_str,
                      'Open': record['open'] / decimal_places_divider,
                      'Close': (record['open'] + record['close']) / decimal_places_divider,
                      'Low': (record['open'] + record['high']) / decimal_places_divider,
@@ -31,8 +34,8 @@ def get_dataframe(client, symbol, period=5, back_time=500000):
 
 
 if __name__ == '__main__':
-    symbol = 'US500'
-    period = 5
+    symbol = 'EOS'
+    period = 60
     client, ssid = login()
 
     dataframe = get_dataframe(symbol=symbol, period=period, back_time=10000000, client=client)

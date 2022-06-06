@@ -303,7 +303,7 @@ def procNewsExample(msg):
 def login():
     # enter your login credentials here
     #userId = "2148103"     # real PLN
-    userId = "13311052"     # demo EUR
+    userId = "13479655"     # demo PLN
     password = "XdzikA5e"
 
     # create & connect to RR socket
