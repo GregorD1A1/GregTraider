@@ -22,7 +22,7 @@ def get_dataframe(client, symbol, period=5, back_time=500000):
     for record in resp['returnData']['rateInfos']:
         datoczas_object = datetime.strptime(record['ctmString'], '%b %d, %Y, %I:%M:%S %p')
         datoczas_str = datoczas_object.strftime('%H:%M %d.%m.%y')
-        dane.append({'DatoCzas': datoczas_str,
+        dane.append({'DateTime': datoczas_str,
                      'Open': record['open'] / decimal_places_divider,
                      'Close': (record['open'] + record['close']) / decimal_places_divider,
                      'Low': (record['open'] + record['high']) / decimal_places_divider,
@@ -30,7 +30,7 @@ def get_dataframe(client, symbol, period=5, back_time=500000):
                      'Volume': record['vol']
                      })
 
-    return pd.DataFrame(dane, columns=['DatoCzas', 'Close', 'Open', 'Low', 'High', 'Volume'])
+    return pd.DataFrame(dane, columns=['DateTime', 'Close', 'Open', 'Low', 'High', 'Volume'])
 
 
 if __name__ == '__main__':
