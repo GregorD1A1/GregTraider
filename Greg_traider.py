@@ -16,7 +16,11 @@ class BackTest(RSIStrategy):
         self.true_cash = self.cash
         self.operating_volume = 1
         self.owned_volume = 0
-        self.moment_transakcji = -1000
+        self.transaction_time = -1000
+        # cost of transaction (spread, broker provision etc.) as part of cost. Adding that cost only for position
+        # opening to be consistent with online trading
+        self.transaction_costs = 0.001
+
         self.plot_memory_init()
 
         # lists with transaction moments
@@ -41,16 +45,16 @@ class BackTest(RSIStrategy):
         self.plot_lines()
 
     def open_long(self):
-        self.cash -= self.close_price * self.operating_volume
+        self.cash -= self.close_price * self.operating_volume * (1 + self.transaction_costs)
         self.owned_volume += self.operating_volume
-        self.moment_transakcji = self.index
+        self.transaction_time = self.index
         # saving data for plotting
         self.open_long_times.append(self.date_time)
 
     def open_short(self):
-        self.cash += self.close_price * self.operating_volume
+        self.cash += self.close_price * self.operating_volume * (1 - self.transaction_costs)
         self.owned_volume -= self.operating_volume
-        self.moment_transakcji = self.index
+        self.transaction_time = self.index
         # saving data for plotting
         self.open_short_times.append(self.date_time)
 
@@ -71,7 +75,7 @@ class BackTest(RSIStrategy):
         self.close_short_times[self.date_time] = profit
 
     def no_pos_open_last_time(self, steps_offset):
-        if self.index - self.moment_transakcji > steps_offset:
+        if self.index - self.transaction_time > steps_offset:
             return True
         else:
             return False

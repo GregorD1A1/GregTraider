@@ -13,87 +13,41 @@ class OnlineStrategy(RSIStrategy):
         self.symbol = symbol
         self.period = period
 
-        # początkowy czas, bardzo dawni
-        self.czas_transakcji = datetime.now() - timedelta(weeks=4)
+        # some starting time from long ago
+        self.transaction_time = datetime.now() - timedelta(weeks=4)
 
+    # implement next functions with your broker API
     def open_long(self):
-        self.trade_transaction(self.symbol, type=0, cmd=0)
-
-        self.czas_transakcji = datetime.now()
+        self.transaction_time = datetime.now()
+        pass
 
     def open_short(self):
-        self.trade_transaction(self.symbol, type=0, cmd=1)
-
-        self.czas_transakcji = datetime.now()
+        self.transaction_time = datetime.now()
+        pass
 
     def close_long(self):
-        arguments = {'openedOnly': True}
-        resp = self.client.commandExecute('getTrades', arguments)
-        # iterujemy przez listę słowników z pozycjami
-        for position in resp['returnData']:
-            # sprawdzamy, czy mamy taką pozycję
-            if position['symbol'] == self.symbol:
-                if position['cmd'] == 0:
-                    order_nr = position['order']
-                    self.trade_transaction(self.symbol, type=2, order=order_nr)
+        pass
 
     def close_short(self):
-        arguments = {'openedOnly': True}
-        resp = self.client.commandExecute('getTrades', arguments)
-        # iterujemy przez listę słowników z pozycjami
-        for position in resp['returnData']:
-            # sprawdzamy, czy mamy taką pozycję
-            if position['symbol'] == self.symbol:
-                if position['cmd'] == 1:
-                    order_nr = position['order']
-                    self.trade_transaction(self.symbol, type=2, order=order_nr)
+        pass
 
     def no_pos_open_last_time(self, nr_steps):
         # obliczanie odstępu czasowego z odstępu między słupkami
         # odejmujemy pół okresu jako zapas na niedokładność
         close_offset_time = timedelta(minutes=nr_steps * self.period - self.period / 2)
 
-        if datetime.now() - self.czas_transakcji > close_offset_time:
+        if datetime.now() - self.transaction_time > close_offset_time:
             return True
         else:
             return False
 
-    # funkcje, związane z API
-    def opened_pos_dir(self):
-        arguments = {'openedOnly': True}
-        resp = self.client.commandExecute('getTrades', arguments)
-        # iterujemy przez listę słowników z pozycjami
-        for position in resp['returnData']:
-            # sprawdzamy, czy mamy taką pozycję
-            if position['symbol'] == self.symbol:
-                if position['cmd'] == 0:
-                    return 'buy'
-                elif position['cmd'] == 1:
-                    return 'sell'
-        return False
-
-    ## type: 0 - open, 2 - close; cmd: 0 - buy, 1 - sell
-    def trade_transaction(self, symbol, type, cmd=0, order=0, volume=0.01):
-        tradeTransInfo = {
-            "cmd": cmd,
-            "order": order,
-            "price": 10,
-            "symbol": symbol,
-            "type": type,
-            "volume": volume
-        }
-        arguments = {'tradeTransInfo': tradeTransInfo}
-        self.client.commandExecute('tradeTransaction', arguments)
-
 
 def trading():
-    # logujemy się
     client, ssid = login()
 
     data = get_dataframe(client, symbol, period, 500000)
     strategy.next(data, client)
 
-    # odpinamy się
     client.disconnect()
 
 
