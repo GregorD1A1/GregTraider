@@ -5,13 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3b7248f8-e628-401f-877d-7e0a225c9b46" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Greg_traider.py" beforeDir="false" afterPath="$PROJECT_DIR$/Greg_traider.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backtrader/RSI_strategy.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backtrader/Trend following strategy.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backtrader/backtrader_main.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backtrader/optimize_params.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/online_trading.py" beforeDir="false" afterPath="$PROJECT_DIR$/online_trading.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/online_trading_xtb.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/readme.md" beforeDir="false" afterPath="$PROJECT_DIR$/readme.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/strategies.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/xAPIConnector.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

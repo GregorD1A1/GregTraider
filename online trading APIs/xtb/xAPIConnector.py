@@ -300,12 +300,7 @@ def procProfitExample(msg):
 def procNewsExample(msg): 
     print("NEWS: ", msg)
     
-def login():
-    # enter your login credentials here
-    #userId = "2148103"     # real PLN
-    userId = "13479655"     # demo PLN
-    password = "XdzikA5e"
-
+def login(userId, password):
     # create & connect to RR socket
     client = APIClient()
 
@@ -326,28 +321,6 @@ def login():
 def main():
     client, ssid = login()
 
-    # second method of invoking commands
-    #resp = client.commandExecute('getMarginLevel')
-    #client.execute(dict(command='getMarginLevel'))
-    #client.execute(dict(command='getChartLastRequest', arguments={'info': {	"period": 5, "start": time.time() - 5, "symbol": "GBPCAD"}} ))
-    '''tradeTransInfo = {
-        "cmd": 0,
-        "customComment": "Some text",
-        "expiration": 0,
-        "offset": 0,
-        "order": 582138799,
-        #"order": 582138861,
-        "price": 10,
-        "sl": 0.0,
-        "symbol": "ALUMINIUM",
-        "tp": 0.0,
-        "type": 2,
-        "volume": 0.01
-	}'''
-    #arguments = {'tradeTransInfo': tradeTransInfo}
-    #resp = client.commandExecute('tradeTransaction', arguments)
-    #arguments = {'openedOnly': True}
-    #resp = client.commandExecute('getTrades', arguments)
     # create & connect to Streaming socket with given ssID
     # and functions for processing ticks, trades, profit and tradeStatus
     sclient = APIStreamClient(ssId=ssid, tickFun=procTickExample, tradeFun=procTradeExample, profitFun=procProfitExample, tradeStatusFun=procTradeStatusExample)

@@ -1,4 +1,4 @@
-from strategies import RSIStrategy
+from strategies.RSI_strategy import RSIStrategy
 import pandas as pd
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go

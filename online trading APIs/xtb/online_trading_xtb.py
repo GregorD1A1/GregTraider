@@ -4,6 +4,7 @@ import schedule
 from xAPIConnector import login
 import time
 from datetime import datetime, timedelta
+from passes import userId, password
 
 
 class OnlineStrategy(RSIStrategy):
@@ -13,7 +14,7 @@ class OnlineStrategy(RSIStrategy):
         self.symbol = symbol
         self.period = period
 
-        # początkowy czas, bardzo dawni
+        # some starting time from long ago
         self.transaction_time = datetime.now() - timedelta(weeks=4)
 
     def open_long(self):
@@ -87,7 +88,8 @@ class OnlineStrategy(RSIStrategy):
 
 
 def trading():
-    client, ssid = login()
+    # write down your own login data and comment login data import at top of file
+    client, ssid = login(userId, password)
 
     data = get_dataframe(client, symbol, period, 500000)
     strategy.next(data, client)
