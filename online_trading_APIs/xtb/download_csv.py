@@ -1,4 +1,5 @@
 from xAPIConnector import login
+from passes import userId, password
 import time
 import pandas as pd
 from datetime import datetime
@@ -8,7 +9,6 @@ def get_dataframe(client, symbol, period=5, back_time=500000):
     arguments = {'info': {
         'period': period,
         'start': (time.time() - back_time) * 1000,
-        # ta duża liczba to pół roku w sekundach, mnożymy razy 1000 bo potrzebujemy wyniku w milisekundach
         'symbol': symbol
     }}
 
@@ -18,7 +18,7 @@ def get_dataframe(client, symbol, period=5, back_time=500000):
     decimal_places_divider = 10 ** decimal_places
 
     dane = []
-    # pętla, obliczająca cenę zamknęcia i tworząca listę z datami i cenami zamknięcia
+    # loop for calculating the closing price and creating a list with dates and closing prices
     for record in resp['returnData']['rateInfos']:
         datoczas_object = datetime.strptime(record['ctmString'], '%b %d, %Y, %I:%M:%S %p')
         datoczas_str = datoczas_object.strftime('%H:%M %d.%m.%y')
@@ -34,11 +34,11 @@ def get_dataframe(client, symbol, period=5, back_time=500000):
 
 
 if __name__ == '__main__':
-    symbol = 'EOS'
-    period = 60
-    client, ssid = login()
+    symbol = 'OIL'
+    period = 5
+    client, ssid = login(userId, password)
 
     dataframe = get_dataframe(symbol=symbol, period=period, back_time=10000000, client=client)
-    dataframe.to_csv(f'historical_data/{symbol}_{period}m.csv', index=False)
+    dataframe.to_csv(f'../../historical_data/{symbol}_{period}m.csv', index=False)
 
     client.disconnect()

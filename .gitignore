@@ -2,4 +2,4 @@
 __pycache__/
 passes.py
 analiza/
-old.csv
+historical_data/old/
