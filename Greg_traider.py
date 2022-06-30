@@ -106,6 +106,7 @@ class BackTest(RSIStrategy):
         self.final_profit = round(float(self.plot_data_df[self.plot_data_df.index == last_date]['True cash']), 2)
         self.sharpe = self.calculate_sharpe(self.final_profit)
 
+    ## plot functions
     def plot_lines(self):
         cash_row = 1
         main_graph_row = 2
@@ -119,13 +120,15 @@ class BackTest(RSIStrategy):
                       [{'rowspan': 2}],
                       [None]]
         self.fig = make_subplots(rows=7, cols=1, shared_xaxes=True, vertical_spacing=0.005, specs=plot_layout)
-        # dodajemy poszczególne linie w odpowiednich miejscach
+        # adding plotting lines in relevant places
         self.fig.add_trace(go.Scatter(x=self.plot_data_df.index, y=self.plot_data_df['Cash'], name='Cash'),
                       row=cash_row, col=1)
         self.fig.add_trace(go.Scatter(x=self.plot_data_df.index, y=self.plot_data_df['True cash'], name='True cash'),
                       row=cash_row, col=1)
         self.fig.add_trace(go.Scatter(x=self.plot_data_df.index, y=self.plot_data_df['Close'], name='Close'),
                       row=main_graph_row, col=1)
+        self.fig.add_trace(go.Scatter(x=self.plot_data_df.index, y=self.plot_data_df['ema'], name='EMA'),
+                           row=main_graph_row, col=1)
         self.fig.add_trace(go.Scatter(x=self.plot_data_df.index, y=self.plot_data_df['rsi'], name='RSI'),
                       row=momentum_row, col=1)
         self.fig.add_trace(go.Scatter(x=self.plot_data_df.index, y=self.plot_data_df['rsi_upper_trsh'], name='Upper Trsh'),
@@ -184,5 +187,5 @@ class BackTest(RSIStrategy):
 
 
 if __name__ == '__main__':
-    backtrader = BackTest('historical_data/EOS_60m.csv')
+    backtrader = BackTest('historical_data/US100_60m.csv')
     backtrader.run_simulation()

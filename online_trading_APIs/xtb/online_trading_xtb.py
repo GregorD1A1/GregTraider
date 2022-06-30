@@ -1,4 +1,4 @@
-from strategies import RSIStrategy
+from strategies.RSI_strategy import RSIStrategy
 from download_csv import get_dataframe
 import schedule
 from xAPIConnector import login
@@ -59,7 +59,7 @@ class OnlineStrategy(RSIStrategy):
         else:
             return False
 
-    # funkcje, związane z API
+    # API related fcns
     def opened_pos_dir(self):
         arguments = {'openedOnly': True}
         resp = self.client.commandExecute('getTrades', arguments)
@@ -99,7 +99,7 @@ def trading():
 
 if __name__ == '__main__':
     period = 1
-    symbol = 'EOS'
+    symbol = 'GOLD'
     strategy = OnlineStrategy(symbol, period)
     trading()
 
