@@ -1,6 +1,6 @@
 Gregtraider is a simple framework for automated online trading and trading strategy backtesting on historical data. You can ask: "Ok, there are many libraries for strategy backtesting, why should I use Gregtraider?". Let me show you some pros of it.
 
-Advantages of Gregtraider:
+## Advantages of Gregtraider:
 1. You should write your strategy only once. Use single strategy class for backtesting and online trading.
 2. Lack of any complicated core, that obstructing debugging.
 3. Nice plotly charts.

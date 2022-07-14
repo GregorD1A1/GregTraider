@@ -25,8 +25,8 @@ class RSIStrategy():
         # indicator calculation
         self.rsi = pdta.rsi(dataframe['Close'], length=self.rsi_period)
         self.ema = pdta.ema(dataframe['Close'], length=self.ema_period)
-        self.kat_pochylenia_ema = self.ema.diff() / self.ema
-        self.ema_angle_smoothed = pdta.sma(self.kat_pochylenia_ema, length=10)
+        self.ema_angle = self.ema.diff() / self.ema
+        self.ema_angle_smoothed = pdta.sma(self.ema_angle, length=10)
         self.rsi_upper_trsh = self.upper_trsh()
         self.rsi_lower_trsh = self.lower_trsh()
 

@@ -4,7 +4,7 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
 
-class BackTest(RSIStrategy):
+class GregTrade(RSIStrategy):
     def __init__(self, data_path):
         super().__init__()
         #self.strategy = RSIStrategy()
@@ -187,5 +187,5 @@ class BackTest(RSIStrategy):
 
 
 if __name__ == '__main__':
-    backtrader = BackTest('historical_data/US100_60m.csv')
+    backtrader = GregTrade('historical_data/US100_60m.csv')
     backtrader.run_simulation()

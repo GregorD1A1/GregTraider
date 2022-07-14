@@ -1,5 +1,5 @@
 from strategies.RSI_strategy import RSIStrategy
-from download_csv import get_dataframe
+from download_csv_xtb import get_dataframe
 import schedule
 from xAPIConnector import login
 import time
@@ -99,7 +99,7 @@ def trading():
 
 if __name__ == '__main__':
     period = 1
-    symbol = 'GOLD'
+    symbol = 'OIL.WTI'
     strategy = OnlineStrategy(symbol, period)
     trading()
 
