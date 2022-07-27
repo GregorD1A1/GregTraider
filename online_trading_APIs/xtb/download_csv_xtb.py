@@ -1,5 +1,5 @@
-from xAPIConnector import login
-from passes import userId, password
+from online_trading_APIs.xtb.xAPIConnector import login
+from online_trading_APIs.xtb.passes import userId, password
 import time
 import pandas as pd
 from datetime import datetime
@@ -25,8 +25,8 @@ def get_dataframe(client, symbol, period=5, back_time=500000):
         data.append({'DateTime': datoczas_str,
                      'Open': record['open'] / decimal_places_divider,
                      'Close': (record['open'] + record['close']) / decimal_places_divider,
-                     'Low': (record['open'] + record['high']) / decimal_places_divider,
-                     'High': (record['open'] + record['low']) / decimal_places_divider,
+                     'High': (record['open'] + record['high']) / decimal_places_divider,
+                     'Low': (record['open'] + record['low']) / decimal_places_divider,
                      'Volume': record['vol']
                      })
 
@@ -35,7 +35,7 @@ def get_dataframe(client, symbol, period=5, back_time=500000):
 
 if __name__ == '__main__':
     # symbol of instrument
-    symbol = 'OIL'
+    symbol = 'GOLD'
     # new bar period in minutes
     period = 5
 

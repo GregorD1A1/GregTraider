@@ -106,7 +106,8 @@ class JsonSocket(object):
                     break
             except ValueError as e:
                 continue
-        logger.info('Received: ' + str(resp))
+        #logger.info('Received: ' + str(resp))
+        logger.info('Received: data')
         return resp
 
     def _readObj(self):
@@ -317,6 +318,7 @@ def login(userId, password):
     ssid = loginResponse['streamSessionId']
 
     return client, ssid
+
 
 def main():
     client, ssid = login()
