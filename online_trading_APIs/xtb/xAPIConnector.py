@@ -4,6 +4,7 @@ import logging
 import time
 import ssl
 from threading import Thread
+from online_trading_APIs.xtb.passes import userId, password
 
 # set to true on debug environment only
 DEBUG = True
@@ -107,7 +108,7 @@ class JsonSocket(object):
             except ValueError as e:
                 continue
         #logger.info('Received: ' + str(resp))
-        logger.info('Received: data')
+        #logger.info('Received: data')
         return resp
 
     def _readObj(self):
@@ -220,8 +221,9 @@ class APIStreamClient(JsonSocket):
     def execute(self, dictionary):
         self._sendObj(dictionary)
 
-    def subscribePrice(self, symbol):
-        self.execute(dict(command='getTickPrices', symbol=symbol, streamSessionId=self._ssId))
+    def subscribePrice(self, symbol, time_interval_ms=0):
+        self.execute(dict(command='getTickPrices', symbol=symbol, minArrivalTime=time_interval_ms,
+                          streamSessionId=self._ssId))
         
     def subscribePrices(self, symbols):
         for symbolX in symbols:
@@ -321,7 +323,7 @@ def login(userId, password):
 
 
 def main():
-    client, ssid = login()
+    client, ssid = login(userId, password)
 
     # create & connect to Streaming socket with given ssID
     # and functions for processing ticks, trades, profit and tradeStatus
@@ -331,12 +333,7 @@ def main():
     #sclient.subscribeTrades()
     #sclient.subscribeBalance()
     # subscribe for prices
-    #sclient.subscribePrices(['EURUSD', 'EURGBP', 'EURJPY'])
-
-    # subscribe for profits
-    #sclient.subscribeProfits()
-
-    sclient.execute(dict(command='getTickPrices', symbol='SILVER', streamSessionId=sclient._ssId))
+    sclient.subscribePrices(['EURUSD'])
 
     # this is an example, make it run for 5 seconds
     time.sleep(5)

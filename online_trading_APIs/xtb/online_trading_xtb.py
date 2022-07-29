@@ -1,14 +1,15 @@
 from strategies.strategy_1_2_3 import Strategy123
+from strategies.Inside_bar_strategy import InsideBar
 from online_trading_APIs.xtb.download_csv_xtb import get_dataframe
-from online_trading_APIs.xtb.xAPIConnector import login
+from online_trading_APIs.xtb.xAPIConnector import login, APIStreamClient
 from datetime import datetime, timedelta
 from online_trading_APIs.xtb.passes import userId, password
 import time
 
 
-class OnlineStrategy(Strategy123):
-    def __init__(self, symbol, period, decimal_places, volume, min_structure_height):
-        super().__init__(min_structure_height=min_structure_height)
+class OnlineStrategy(InsideBar):
+    def __init__(self, symbol, period, decimal_places, volume):#, min_structure_height):
+        super().__init__() #min_structure_height=min_structure_height)
 
         self.symbol = symbol
         self.decimal_places = decimal_places
@@ -78,6 +79,20 @@ class OnlineStrategy(Strategy123):
         }
         arguments = {'tradeTransInfo': tradeTransInfo}
         self.client.commandExecute('tradeTransaction', arguments)
+
+    def subscribe_price(self, interval_ms):
+        print('subskrybuję')
+        self.client, ssid = login(userId, password)
+        self.sclient = APIStreamClient(ssId=ssid, tickFun=self.process_tick_subscribe_data)
+        self.sclient.subscribePrice(self.symbol, interval_ms)
+
+
+
+    def unsubscribe_price(self):
+        print('odsubskrybowuję')
+        super().unsubscribe_price()
+        self.sclient.disconnect()
+        self.client.disconnect()
 
 
 def wait_for_not_to_frequent_sending_requests(prev_time):

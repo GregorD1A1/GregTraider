@@ -1,4 +1,5 @@
-from strategies.strategy_123 import Strategy123
+from strategies.strategy_1_2_3 import Strategy123
+from strategies.Inside_bar_strategy import InsideBar
 import pandas as pd
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
@@ -17,9 +18,9 @@ class Position():
         self.profit = None
 
 
-class GregTrade(Strategy123):
-    def __init__(self, data_path):
-        super().__init__()
+class GregTrade(InsideBar):
+    def __init__(self, data_path): #, min_structure_height):
+        super().__init__()#min_structure_height)
         self.input_data = pd.read_csv(data_path)
 
         self.cash = 0
@@ -223,5 +224,5 @@ class GregTrade(Strategy123):
 
 
 if __name__ == '__main__':
-    backtester = GregTrade('historical_data/GOLD_5m.csv')
+    backtester = GregTrade('historical_data/GOLD_60m.csv') #, min_structure_height=25)
     backtester.run_simulation()
