@@ -333,14 +333,12 @@ def main():
     #sclient.subscribeTrades()
     #sclient.subscribeBalance()
     # subscribe for prices
-    sclient.subscribePrices(['EURUSD'])
+    sclient.subscribePrices(['ETHEREUM'])
 
     # this is an example, make it run for 5 seconds
     time.sleep(5)
-    
     # gracefully close streaming socket
     sclient.disconnect()
-    
     # gracefully close RR socket
     client.disconnect()
 

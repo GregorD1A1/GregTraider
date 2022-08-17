@@ -23,6 +23,10 @@ class Strategy123():
 
         self.client = client
 
+        # check if it needs to unsubscribe something
+        if self.can_unsubscribe_price_flag:
+            self.unsubscribe_price()
+
         self.open_1_2_3(dataframe, 'low')
         self.open_1_2_3(dataframe, 'high')
 
@@ -37,10 +41,8 @@ class Strategy123():
         if point_2_idx is None:
             return
 
-
-
         # looking for point 3
-        point_3_idx = self.find_point_3(dataframe, current_idx, point_1_idx, point_2_idx, structure_side)
+        point_3_idx = self.find_potential_point_3(dataframe, current_idx, point_1_idx, point_2_idx, structure_side)
         if point_3_idx is None:
             return
 
@@ -61,7 +63,7 @@ class Strategy123():
         if point_1_time == self.prev_point_1_time:
             return
 
-        # check if program is returning for point 3 is high  enough
+        # check if program is returning for point 3 is high enough
         if not self.check_return_height_for_point_3(dataframe, point_1_idx, point_2_idx, point_3_idx, structure_side):
             return
 
@@ -75,17 +77,14 @@ class Strategy123():
         #    return
 
         self.prev_point_1_time = point_1_time
+
+        self.subscribed_strucure_side = structure_side
         if structure_side == 'low':
-            #self.open_long()
-            # not open position if current price is too close to target price
-            if self.risk_profit_ratio(dataframe) < 0.6:
-                self.open_long(volume=self.volume, stop_loss=self.stoploss, take_profit=self.takeprofit)
-            self.open_long(volume=self.volume, stop_loss=self.stoploss, take_profit=self.takeprofit + self.structure_height)
+            self.point_3_high = dataframe['High'][point_3_idx]
+            self.subscribe_price(1000)
         else:
-            #self.open_short()
-            if self.risk_profit_ratio(dataframe) < 0.6:
-                self.open_short(volume=self.volume, stop_loss=self.stoploss, take_profit=self.takeprofit)
-            self.open_short(volume=self.volume, stop_loss=self.stoploss, take_profit=self.takeprofit - self.structure_height)
+            self.point_3_low = dataframe['Low'][point_3_idx]
+            self.subscribe_price(1000)
 
         print(f'Point1: {dataframe.iloc[point_1_idx]["DateTime"]}, Point2: {dataframe.iloc[point_2_idx]["DateTime"]}, '
               f'Point3: {dataframe.iloc[point_3_idx]["DateTime"]}, Current: {dataframe.iloc[current_idx]["DateTime"]} '
@@ -124,7 +123,7 @@ class Strategy123():
                 return suspected_row_idx
             return None
 
-    def find_point_3(self, dataframe, current_idx, point1_idx, point2_idx, structure_side):
+    def find_potential_point_3(self, dataframe, current_idx, point1_idx, point2_idx, structure_side):
         if structure_side == 'low':
             # finding low from point 2 up to now excluding last bar
             searching_subframe = dataframe['Low'].iloc[point2_idx+1: current_idx]
@@ -137,15 +136,7 @@ class Strategy123():
         if suspected_row_idx - point1_idx < self.min_structure_len:
             return None
 
-        # confirming point 3
-        if structure_side == 'low':
-            if self.confirm_low_point(dataframe, suspected_row_idx):
-                return suspected_row_idx
-            return None
-        else:
-            if self.confirm_high_point(dataframe, suspected_row_idx):
-                return suspected_row_idx
-            return None
+        return suspected_row_idx
 
     def confirm_strong_movement_before_point_1(self, dataframe, point_1_idx, point_2_idx, point_3_idx, structure_side):
         structure_height = self.formation_height(dataframe, point_1_idx, point_2_idx,  structure_side)
@@ -217,6 +208,19 @@ class Strategy123():
         min_height = self.min_structure_height + \
                      (structure_len - self.min_structure_len) * 0.08 * self.min_structure_height
         return self.structure_height > min_height
+
+    # function, that called every 1 second if price subscribed
+    def process_tick_subscribe_data(self, msg):
+        actual_price = msg['data']['bid']
+        if self.subscribed_strucure_side == 'low' and actual_price > self.point_3_high:
+            self.open_long(volume=self.volume, stop_loss=self.stoploss, take_profit=self.takeprofit)
+        elif self.subscribed_strucure_side == 'high' and actual_price < self.point_3_low:
+            self.open_short(volume=self.volume, stop_loss=self.stoploss, take_profit=self.takeprofit)
+        self.finish_subscription()
+
+    def finish_subscription(self):
+        self.subscribed_strucure_side = None
+        self.can_unsubscribe_price_flag = True
 
     def open_long(self):
         pass
