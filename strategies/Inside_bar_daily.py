@@ -1,6 +1,7 @@
 import pandas as pd
 import pandas_ta as pdta
 from online_trading_APIs.xtb.download_csv_xtb import get_dataframe
+from datetime import date, timedelta
 
 
 class InsideBarBase():
@@ -13,20 +14,19 @@ class InsideBarBase():
         self.transaction_state = 'closed'
         self.direction = None
 
-    def next(self):
+    def next(self, dataframe_logic, client, ssid):
         # put here all indicators you want to plot in Gregtraider
         self.plot_indicators_dict = {}
-        self.dataframe_logic = get_dataframe(self.client, self.symbol, self.period)
+        self.dataframe_logic = dataframe_logic
 
         self.find_inside_bar(self.dataframe_logic)
 
     def find_inside_bar(self, dataframe):
-        current_bar_idx = dataframe.index[-1]
-        prev_bar_idx = dataframe.index[-2]
+        current_bar_idx, prev_bar_idx = self.get_bar_indexes(dataframe)
 
         # check if current bar is inside bar
-        if not (dataframe['Low'][current_bar_idx] > dataframe['Low'][prev_bar_idx] and \
-                dataframe['High'][current_bar_idx] < dataframe['High'][prev_bar_idx]):
+        if not (dataframe['Low'][current_bar_idx] >= dataframe['Low'][prev_bar_idx] and \
+                dataframe['High'][current_bar_idx] <= dataframe['High'][prev_bar_idx]):
             return
         self.inside_bar_idx = current_bar_idx
         self.outside_bar_idx = prev_bar_idx
@@ -62,11 +62,19 @@ class InsideBarBase():
             return 'up'
         return None
 
-
+    def get_bar_indexes(self, dataframe):
+        yesterday = date.today() - timedelta(days=1)
+        day_before_yesterday = date.today() - timedelta(days=2)
+        yesterday_str = yesterday.strftime('%H:%M %d.%m.%y')
+        day_before_yesterday_str = day_before_yesterday.strftime('%H:%M %d.%m.%y')
+        current_bar_idx = dataframe[dataframe['DateTime'] == yesterday_str].index.tolist()[0]
+        prev_bar_idx = dataframe[dataframe['DateTime'] == day_before_yesterday_str].index.tolist()[0]
+        return current_bar_idx, prev_bar_idx
+    
 class InsideBarFrequent():
     def __init__(self, **kwargs):
         # parameters
-        self.min_price = 10000000
+        self.min_price = float('inf')
         self.max_price = 0
 
         self.plot_indicators_dict = {}
@@ -78,7 +86,7 @@ class InsideBarFrequent():
         print(f'state: {self.base_strategy.transaction_state}, {self.symbol}')
         if self.base_strategy.transaction_state == 'closed':
             return
-        actual_price = dataframe_frequent['Close'][-1]
+        actual_price = dataframe_frequent['Close'].iloc[-1]
         if actual_price < self.min_price:
             self.min_price = actual_price
         elif actual_price > self.max_price:
@@ -125,7 +133,7 @@ class InsideBarFrequent():
                 self.finish_subscription()
 
     def finish_subscription(self):
-        self.min_price = 10000000
+        self.min_price = float('inf')
         self.max_price = 0
         self.can_unsubscribe_price_flag = True
         self.base_strategy.transaction_state = 'closed'

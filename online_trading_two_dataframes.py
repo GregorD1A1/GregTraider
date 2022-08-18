@@ -56,15 +56,29 @@ def trading_strategies(strategy_list, client, ssid):
         time_prev_request = time.perf_counter()
 
 if __name__ == '__main__':
-    instruments_inside_bar = {'GOLD':  {'period_base': 1440, 'period_freq': 5, 'volume': 0.05, 'decimal_places': 2},
+    instruments_inside_bar = {
+        # resources
+        'GOLD':  {'period_base': 1440, 'period_freq': 5, 'volume': 0.05, 'decimal_places': 2},
                    'OIL':   {'period_base': 1440, 'period_freq': 5, 'volume': 0.02, 'decimal_places': 2},
                    'OIL.WTI': {'period_base': 1440, 'period_freq': 5, 'volume': 0.02, 'decimal_places': 2},
                    'SILVER': {'period_base': 1440, 'period_freq': 5, 'volume': 0.02, 'decimal_places': 3},
+        # indexes Europe
                    'NED25': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 2},
                    'SUI20': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 0},
-                   'US100': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 2},
-                   'W20':   {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 1},
-                   'JAP225': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 0},}
+                   'DE30': {'period_base': 1440, 'period_freq': 5, 'volume': 0.02, 'decimal_places': 1},
+                   'EU50': {'period_base': 1440, 'period_freq': 5, 'volume': 0.1, 'decimal_places': 1},
+        'W20': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 1},
+        # indexes America
+        'US100': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 2},
+        # indexes Asia and Oceania
+        'AUS200': {'period_base': 1440, 'period_freq': 5, 'volume': 0.02, 'decimal_places': 0},
+        'JAP225': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 0},
+        'CH50cash': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 1},
+        # krypto
+        'ETHEREUM': {'period_base': 1440, 'period_freq': 5, 'volume': 0.1, 'decimal_places': 3},
+        'TRON': {'period_base': 1440, 'period_freq': 5, 'volume': 2500, 'decimal_places': 5},
+
+                              }
 
     # define strategy for every instrumewnt and period
     base_strategy_list = create_base_strategy_list(instruments_inside_bar)
@@ -86,7 +100,7 @@ if __name__ == '__main__':
         # main trading staff
 
 
-        if current_hour == 0 and current_hour != prev_hour:
+        if current_hour == 9 and current_hour != prev_hour:
             trading_strategies(base_strategy_list, client, ssid)
 
         if current_minute % 5 == 0 and current_minute != prev_minute:
