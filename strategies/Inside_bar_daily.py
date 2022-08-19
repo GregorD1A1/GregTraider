@@ -4,7 +4,7 @@ from online_trading_APIs.xtb.download_csv_xtb import get_dataframe
 from datetime import date, timedelta
 
 
-class InsideBarBase():
+class InsideBarDailyBase():
     def __init__(self, symbol, period):
         # parameters
         self.direction = None
@@ -70,8 +70,9 @@ class InsideBarBase():
         current_bar_idx = dataframe[dataframe['DateTime'] == yesterday_str].index.tolist()[0]
         prev_bar_idx = dataframe[dataframe['DateTime'] == day_before_yesterday_str].index.tolist()[0]
         return current_bar_idx, prev_bar_idx
-    
-class InsideBarFrequent():
+
+
+class InsideBarDailyFrequent():
     def __init__(self, **kwargs):
         # parameters
         self.min_price = float('inf')
@@ -81,9 +82,10 @@ class InsideBarFrequent():
 
         self.period = 5
         self.base_strategy = kwargs['base_strategy']
+        self.name = 'Inside_Bar_Daily'
 
     def next(self, dataframe_frequent):
-        print(f'state: {self.base_strategy.transaction_state}, {self.symbol}')
+        #print(f'state: {self.base_strategy.transaction_state}, {self.symbol}')
         if self.base_strategy.transaction_state == 'closed':
             return
         actual_price = dataframe_frequent['Close'].iloc[-1]

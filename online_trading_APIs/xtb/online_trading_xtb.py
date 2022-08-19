@@ -1,12 +1,12 @@
 from strategies.strategy_1_2_3 import Strategy123
 from strategies.Inside_bar_strategy import InsideBar
-from strategies.Inside_bar_daily import  InsideBarFrequent
+from strategies.Inside_bar_daily import  InsideBarDailyFrequent
 from online_trading_APIs.xtb.xAPIConnector import APIStreamClient
 from datetime import datetime, timedelta
 import time
 
 
-class OnlineStrategy(InsideBarFrequent):
+class OnlineStrategy(InsideBarDailyFrequent):
     def __init__(self, symbol, period, decimal_places, volume, **kwargs):#, min_structure_height):
         super().__init__(**kwargs) #min_structure_height=min_structure_height)
 
@@ -14,6 +14,7 @@ class OnlineStrategy(InsideBarFrequent):
         self.decimal_places = decimal_places
         self.volume = volume
         self.period = period
+        self.signature = f'{self.__class__.__base__.__name__}_{self.symbol}_{self.period}m'
         self.can_unsubscribe_price_flag = False
 
         # some starting time from long ago
@@ -42,7 +43,7 @@ class OnlineStrategy(InsideBarFrequent):
         # iterujemy przez listę słowników z pozycjami
         for position in resp['returnData']:
             # sprawdzamy, czy mamy taką pozycję
-            if position['symbol'] == self.symbol:
+            if position['customComment'] == self.signature:
                 order_nr = position['order']
                 self.trade_transaction(self.symbol, type=2, order=order_nr)
 
@@ -73,6 +74,7 @@ class OnlineStrategy(InsideBarFrequent):
             "volume": volume,
             "sl": stoploss,
             "tp": takeprofit,
+            "customComment": self.signature,
         }
         arguments = {'tradeTransInfo': tradeTransInfo}
         self.client.commandExecute('tradeTransaction', arguments)

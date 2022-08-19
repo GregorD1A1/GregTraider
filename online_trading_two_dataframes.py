@@ -1,5 +1,5 @@
 from online_trading_APIs.xtb.online_trading_xtb import OnlineStrategy
-from strategies.Inside_bar_daily import InsideBarBase
+from strategies.Inside_bar_daily import InsideBarDailyBase
 from online_trading_APIs.xtb.download_csv_xtb import get_dataframe
 import time
 from datetime import datetime
@@ -12,7 +12,7 @@ def create_base_strategy_list(instruments):
     for instrument in instruments:
         symbol = instrument
         period = instruments[instrument]['period_base']
-        strategy = InsideBarBase(symbol, period)
+        strategy = InsideBarDailyBase(symbol, period)
         strategy_list.append(strategy)
 
     return strategy_list
@@ -57,19 +57,25 @@ def trading_strategies(strategy_list, client, ssid):
 
 if __name__ == '__main__':
     instruments_inside_bar = {
-        # resources
+        # metal commodities
         'GOLD':  {'period_base': 1440, 'period_freq': 5, 'volume': 0.05, 'decimal_places': 2},
-                   'OIL':   {'period_base': 1440, 'period_freq': 5, 'volume': 0.02, 'decimal_places': 2},
-                   'OIL.WTI': {'period_base': 1440, 'period_freq': 5, 'volume': 0.02, 'decimal_places': 2},
-                   'SILVER': {'period_base': 1440, 'period_freq': 5, 'volume': 0.02, 'decimal_places': 3},
+        'SILVER': {'period_base': 1440, 'period_freq': 5, 'volume': 0.02, 'decimal_places': 3},
+        # energy commodities
+        'OIL':   {'period_base': 1440, 'period_freq': 5, 'volume': 0.02, 'decimal_places': 2},
+        'OIL.WTI': {'period_base': 1440, 'period_freq': 5, 'volume': 0.02, 'decimal_places': 2},
+        'NATGAS':   {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 3},
+        'GASOLINE': {'period_base': 1440, 'period_freq': 5, 'volume': 0.02, 'decimal_places': 2},
+        # agricultural commodities
+        'SOYBEAN': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 2},
+        'COFFEE': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 2},
         # indexes Europe
-                   'NED25': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 2},
-                   'SUI20': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 0},
-                   'DE30': {'period_base': 1440, 'period_freq': 5, 'volume': 0.02, 'decimal_places': 1},
-                   'EU50': {'period_base': 1440, 'period_freq': 5, 'volume': 0.1, 'decimal_places': 1},
-        'W20': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 1},
+        'NED25': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 2},
+        'SUI20': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 0},
+        'DE30': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 1},
+        'EU50': {'period_base': 1440, 'period_freq': 5, 'volume': 0.11, 'decimal_places': 1},
+        'W20': {'period_base': 1440, 'period_freq': 5, 'volume': 0.3, 'decimal_places': 1},
         # indexes America
-        'US100': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 2},
+        'US100': {'period_base': 1440, 'period_freq': 5, 'volume': 0.02, 'decimal_places': 2},
         # indexes Asia and Oceania
         'AUS200': {'period_base': 1440, 'period_freq': 5, 'volume': 0.02, 'decimal_places': 0},
         'JAP225': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 0},
@@ -100,7 +106,7 @@ if __name__ == '__main__':
         # main trading staff
 
 
-        if current_hour == 9 and current_hour != prev_hour:
+        if current_hour == 0 and current_hour != prev_hour:
             trading_strategies(base_strategy_list, client, ssid)
 
         if current_minute % 5 == 0 and current_minute != prev_minute:
