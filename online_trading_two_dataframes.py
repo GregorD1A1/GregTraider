@@ -106,7 +106,7 @@ if __name__ == '__main__':
         # main trading staff
 
 
-        if current_hour == 0 and current_hour != prev_hour:
+        if current_hour == 2 and current_hour != prev_hour:
             trading_strategies(base_strategy_list, client, ssid)
 
         if current_minute % 5 == 0 and current_minute != prev_minute:

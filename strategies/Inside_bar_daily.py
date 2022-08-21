@@ -56,9 +56,9 @@ class InsideBarDailyBase():
 
     # checks if close prise is close enough to one of the candle edges
     def close_price_direction_filter(self, dataframe):
-        if dataframe['Close'][self.inside_bar_idx] - dataframe['Low'][self.inside_bar_idx] < 0.25 * self.inside_bar_length:
+        if dataframe['Close'][self.inside_bar_idx] - dataframe['Low'][self.inside_bar_idx] < 0.35 * self.inside_bar_length:
             return 'down'
-        elif dataframe['High'][self.inside_bar_idx] - dataframe['Close'][self.inside_bar_idx] < 0.25 * self.inside_bar_length:
+        elif dataframe['High'][self.inside_bar_idx] - dataframe['Close'][self.inside_bar_idx] < 0.35 * self.inside_bar_length:
             return 'up'
         return None
 
@@ -85,7 +85,7 @@ class InsideBarDailyFrequent():
         self.name = 'Inside_Bar_Daily'
 
     def next(self, dataframe_frequent):
-        #print(f'state: {self.base_strategy.transaction_state}, {self.symbol}')
+        print(f'state: {self.base_strategy.transaction_state}, {self.symbol}')
         if self.base_strategy.transaction_state == 'closed':
             return
         actual_price = dataframe_frequent['Close'].iloc[-1]
@@ -100,6 +100,7 @@ class InsideBarDailyFrequent():
             self.calculate_stoploss_and_close_if_necessary(actual_price)
 
     def open_pos_if_necessary(self, actual_price):
+        print(self.base_strategy.open_trsh, self.base_strategy.opposite_trsh)
         # opening position if price pierces threshold
         if self.base_strategy.direction == 'up':
             if actual_price > self.base_strategy.open_trsh:
@@ -137,5 +138,4 @@ class InsideBarDailyFrequent():
     def finish_subscription(self):
         self.min_price = float('inf')
         self.max_price = 0
-        self.can_unsubscribe_price_flag = True
         self.base_strategy.transaction_state = 'closed'

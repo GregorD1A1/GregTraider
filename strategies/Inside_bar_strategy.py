@@ -43,6 +43,7 @@ class InsideBar():
         #    return
         # direction filter
         self.direction = self.close_price_direction_filter(dataframe)
+        print('inside bar found')
         if self.direction == 'down':# and self.slient == None # check if some price not subscribed already
             self.open_trsh = dataframe['Low'][self.inside_bar_idx] - 0.05 * self.inside_bar_length
             self.opposite_trsh = dataframe['High'][self.outside_bar_idx]
@@ -77,7 +78,6 @@ class InsideBar():
             self.min_price = actual_price
         elif actual_price > self.max_price:
             self.max_price = actual_price
-
         if self.transaction_state == 'ready for open':
             self.open_pos_if_necessary(actual_price)
         elif self.transaction_state == 'opened':
