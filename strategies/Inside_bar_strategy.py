@@ -28,6 +28,7 @@ class InsideBar():
         self.find_inside_bar(dataframe)
 
     def find_inside_bar(self, dataframe):
+        print(f'Checking {self.symbol} {self.period}m')
         current_bar_idx = dataframe.index[-1]
         prev_bar_idx = dataframe.index[-2]
 
