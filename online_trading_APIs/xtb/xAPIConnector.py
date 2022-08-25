@@ -88,7 +88,7 @@ class JsonSocket(object):
             msg = msg.encode('utf-8')
             while sent < len(msg):
                 sent += self.conn.send(msg[sent:])
-                logger.info('Sent: ' + str(msg))
+                #logger.info('Sent: ' + str(msg))
                 time.sleep(API_SEND_TIMEOUT/1000)
 
     def _read(self, bytesSize=4096):
@@ -221,8 +221,9 @@ class APIStreamClient(JsonSocket):
     def execute(self, dictionary):
         self._sendObj(dictionary)
 
-    def subscribePrice(self, symbol, time_interval_ms=0):
-        self.execute(dict(command='getTickPrices', symbol=symbol, minArrivalTime=time_interval_ms,
+    def subscribePrice(self, symbol, time_interval_ms=0, max_level=0):
+        # maxLevel is level of market depth
+        self.execute(dict(command='getTickPrices', symbol=symbol, minArrivalTime=time_interval_ms, maxLevel=max_level,
                           streamSessionId=self._ssId))
         
     def subscribePrices(self, symbols):
@@ -336,7 +337,7 @@ def main():
     sclient.subscribePrices(['ETHEREUM'])
 
     # this is an example, make it run for 5 seconds
-    time.sleep(5)
+    time.sleep(30)
     # gracefully close streaming socket
     sclient.disconnect()
     # gracefully close RR socket

@@ -37,14 +37,18 @@ def wait_for_not_too_frequent_sending_requests(prev_time):
         time.sleep(0.05)
 
 def trading_strategies(strategy_list, client, ssid):
+    # ping server for case there will be no active strategies
+    client.commandExecute('ping')
     # initializing time difference counter
     time_prev_request = time.perf_counter() - 1
 
     for strategy in strategy_list:
+        # if that day find no inside bar for that instrument or transaction is ended
+        if not_go_further_if_inside_bar_not_exists(strategy): continue
         # to avoid "request too often" error
         wait_for_not_too_frequent_sending_requests(time_prev_request)
 
-        data = get_dataframe(client, strategy.symbol, strategy.period, 500000)
+        data = get_dataframe(client, strategy.symbol, strategy.period, 350000)
 
         # not sending requests too frequent staff
         time_prev_request = time.perf_counter()
@@ -54,6 +58,15 @@ def trading_strategies(strategy_list, client, ssid):
 
         # final time measuring
         time_prev_request = time.perf_counter()
+
+
+def not_go_further_if_inside_bar_not_exists(strategy):
+    # try except for base strategies
+    try:
+        if strategy.base_strategy.transaction_state == 'closed':
+            return True
+    except AttributeError:
+        pass
 
 if __name__ == '__main__':
     instruments_inside_bar = {
@@ -67,7 +80,9 @@ if __name__ == '__main__':
         'GASOLINE': {'period_base': 1440, 'period_freq': 5, 'volume': 0.02, 'decimal_places': 2},
         # agricultural commodities
         'SOYBEAN': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 2},
+        'CORN': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 2},
         'COFFEE': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 2},
+        'WHEAT': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 2},
         # indexes Europe
         'NED25': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 2},
         'SUI20': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 0},
@@ -83,8 +98,7 @@ if __name__ == '__main__':
         # krypto
         'ETHEREUM': {'period_base': 1440, 'period_freq': 5, 'volume': 0.1, 'decimal_places': 3},
         'TRON': {'period_base': 1440, 'period_freq': 5, 'volume': 2500, 'decimal_places': 5},
-
-                              }
+        }
 
     # define strategy for every instrumewnt and period
     base_strategy_list = create_base_strategy_list(instruments_inside_bar)
@@ -105,8 +119,7 @@ if __name__ == '__main__':
         # to not repeat trading for same minute
         # main trading staff
 
-
-        if current_hour == 2 and current_hour != prev_hour:
+        if current_hour == 0 and current_hour != prev_hour:
             trading_strategies(base_strategy_list, client, ssid)
 
         if current_minute % 5 == 0 and current_minute != prev_minute:

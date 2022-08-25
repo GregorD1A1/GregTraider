@@ -79,7 +79,7 @@ class OnlineStrategy(InsideBarDailyFrequent):
         arguments = {'tradeTransInfo': tradeTransInfo}
         self.client.commandExecute('tradeTransaction', arguments)
 
-    def subscribe_price(self, interval_ms):
+    def subscribe_price(self, interval_ms, _, _):
         print('subskrybuję ' + self.symbol)
         # check if not overwriting existing client
         self.sclient = APIStreamClient(ssId=self.ssid, tickFun=self.process_tick_subscribe_data)

@@ -1,5 +1,6 @@
 import pandas as pd
 import pandas_ta as pdta
+from strategies.utilities import atr_based_stoploss
 
 
 class InsideBar():
@@ -43,15 +44,16 @@ class InsideBar():
         #    return
         # direction filter
         self.direction = self.close_price_direction_filter(dataframe)
-        print('inside bar found')
+        if self.direction is None: return
+        print('inside bar found ' + self.symbol)
         if self.direction == 'down':# and self.slient == None # check if some price not subscribed already
             self.open_trsh = dataframe['Low'][self.inside_bar_idx] - 0.05 * self.inside_bar_length
             self.opposite_trsh = dataframe['High'][self.outside_bar_idx]
-            self.subscribe_price(200)
+            self.subscribe_price(1000)
         elif self.direction == 'up':
             self.open_trsh = dataframe['High'][self.inside_bar_idx] + 0.05 * self.inside_bar_length
             self.opposite_trsh = dataframe['Low'][self.outside_bar_idx]
-            self.subscribe_price(200)
+            self.subscribe_price(1000)
 
     # filters if inside bar is 2 times smaller than outside
     def length_filter(self, dataframe):
@@ -73,6 +75,7 @@ class InsideBar():
         print(f'state: {self.transaction_state}, {self.symbol}')
         if self.transaction_state == 'closed':
             return
+
         actual_price = msg['data']['bid']
         if actual_price < self.min_price:
             self.min_price = actual_price
@@ -90,7 +93,7 @@ class InsideBar():
             if actual_price > self.open_trsh:
                 print('open long')
                 # set platform stoploss for case of errors or server problems
-                self.open_long(volume=self.volume, stop_loss=self.min_price - self.inside_bar_length * 0.05)
+                self.open_long(volume=self.volume, stop_loss=self.min_price - self.inside_bar_length * 0.2)
                 self.transaction_state = 'opened'
             elif actual_price < self.opposite_trsh:
                 self.transaction_state = 'closed'
@@ -99,7 +102,7 @@ class InsideBar():
             if actual_price < self.open_trsh:
                 print('open short')
                 # set platform stoploss for case of errors or server problems
-                self.open_short(volume=self.volume)#, stop_loss=self.max_price + self.inside_bar_length * 0.05)
+                self.open_short(volume=self.volume)#, stop_loss=self.max_price + self.inside_bar_length * 0.2)
                 self.transaction_state = 'opened'
             elif actual_price > self.opposite_trsh:
                 self.transaction_state = 'closed'
@@ -107,13 +110,13 @@ class InsideBar():
 
     def calculate_stoploss_and_close_if_necessary(self, actual_price):
         if self.direction == 'up':
-            stoploss = self.max_price - 0.5 * self.inside_bar_length
+            stoploss = self.max_price - atr_based_stoploss(self.dataframe, 20, 0.5)
             if actual_price < stoploss:
                 print('close long')
                 self.close()
                 self.finish_subscription()
         elif self.direction == 'down':
-            stoploss = self.min_price + 0.5 * self.inside_bar_length
+            stoploss = self.min_price + 0.5 * atr_based_stoploss(self.dataframe, 20, 0.5)
             if actual_price > stoploss:
                 print('close short')
                 self.close()
@@ -123,15 +126,3 @@ class InsideBar():
         self.min_price = 10000000
         self.max_price = 0
         self.can_unsubscribe_price_flag = True
-
-    def open_long(self):
-        pass
-
-    def open_short(self):
-        pass
-
-    def close(self):
-        pass
-
-    def subscribe_price(self):
-        pass

@@ -18,9 +18,9 @@ class Position():
         self.profit = None
 
 
-class GregTrade(InsideBar):
-    def __init__(self, data_path): #, min_structure_height):
-        super().__init__()#min_structure_height)
+class GregTrade(Strategy123):
+    def __init__(self, data_path, min_structure_height):
+        super().__init__(min_structure_height)
         self.input_data = pd.read_csv(data_path)
 
         self.cash = 0
@@ -37,6 +37,7 @@ class GregTrade(InsideBar):
 
         self.opened_positions = []
         self.closed_positions = []
+        self.can_unsubscribe_price_flag = False
 
 
     def run_simulation(self):
@@ -105,14 +106,6 @@ class GregTrade(InsideBar):
         else:
             return False
 
-    def opened_pos_dir(self):
-        if self.owned_volume > 0:
-            return 'buy'
-        elif self.owned_volume < 0:
-            return 'sell'
-        else:
-            return False
-
     def close_positions_by_sl_tp(self):
         for position in self.opened_positions:
             if position.side == 'long':
@@ -126,6 +119,15 @@ class GregTrade(InsideBar):
                 elif position.take_profit is not None and self.low_price <= position.take_profit:
                     self.close(position, position.take_profit)
 
+    def subscribe_price(self, _, positive_trsh, negative_trsh):
+        self.negative_trsh = negative_trsh
+        self.positive_trsh = positive_trsh
+
+    def open_pos_by_subscription_or_turn_it_off(self):
+        if self.high_price > self.negative_trsh and self.low_price < self.negative_trsh:
+            self.finish_subscription()
+        elif self.high_price > self.positive_trsh and self.low_price < self.positive_trsh:
+            open_position() tylko którą?
 
     ## plotting functions
     def plot_memory_init(self):
@@ -224,5 +226,5 @@ class GregTrade(InsideBar):
 
 
 if __name__ == '__main__':
-    backtester = GregTrade('historical_data/GOLD_60m.csv') #, min_structure_height=25)
+    backtester = GregTrade('historical_data/GOLD_60m.csv', min_structure_height=25)
     backtester.run_simulation()

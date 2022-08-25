@@ -35,7 +35,7 @@ def get_dataframe(client, symbol, period=5, back_time=500000):
 
 if __name__ == '__main__':
     # symbol of instrument
-    symbol = 'US2000'
+    symbol = 'TRON'
     # new bar period in minutes
     period = 1440
 

@@ -66,15 +66,23 @@ if __name__ == '__main__':
                    'US100': {'period': 30, 'volume': 0.01, 'decimal_places': 2, 'min_height': 90},
                    'W20':   {'period': 30, 'volume': 0.10, 'decimal_places': 1, 'min_height': 18},}
 
-    instruments_inside_bar = {'GOLD':  {'period': 60, 'volume': 0.02, 'decimal_places': 2},
-                   'OIL':   {'period': 5, 'volume': 0.02, 'decimal_places': 2},
-                   'OIL.WTI': {'period': 5, 'volume': 0.02, 'decimal_places': 2},
-                   'SILVER': {'period': 5, 'volume': 0.02, 'decimal_places': 3},
-                   'NED25': {'period': 5, 'volume': 0.01, 'decimal_places': 2},
-                   'SUI20': {'period': 5, 'volume': 0.01, 'decimal_places': 0},
-                   'US100': {'period': 5, 'volume': 0.01, 'decimal_places': 2},
-                   'W20':   {'period': 5, 'volume': 0.01, 'decimal_places': 1},
-                   'JAP225': {'period': 5, 'volume': 0.01, 'decimal_places': 0},}
+    instruments_inside_bar = {
+        'GOLD':  {'period': 60, 'volume': 0.02, 'decimal_places': 2},
+        'SILVER': {'period': 60, 'volume': 0.02, 'decimal_places': 3},
+        'OIL':   {'period': 60, 'volume': 0.02, 'decimal_places': 2},
+        'OIL.WTI': {'period': 30, 'volume': 0.02, 'decimal_places': 2},
+        'US500': {'period': 60, 'volume': 0.01, 'decimal_places': 1},
+        'US100': {'period': 30, 'volume': 0.01, 'decimal_places': 2},
+        'NED25': {'period': 60, 'volume': 0.01, 'decimal_places': 2},
+        'SUI20': {'period': 60, 'volume': 0.01, 'decimal_places': 0},
+        'DE30': {'period': 30, 'volume': 0.01, 'decimal_places': 1},
+        'FRA40': {'period': 60, 'volume': 0.01, 'decimal_places': 1},
+        'W20':   {'period': 60, 'volume': 0.1, 'decimal_places': 1},
+        'JAP225': {'period': 60, 'volume': 0.01, 'decimal_places': 0},
+        'UK100': {'period': 60, 'volume': 0.01, 'decimal_places': 1},
+        'SPA35': {'period': 60, 'volume': 0.01, 'decimal_places': 0},
+        'SOYBEAN': {'period': 60, 'volume': 0.01, 'decimal_places': 2},
+    }
 
     instruments_crypto_weekend_test = {
                    'SANDBOX':  {'period': 5, 'volume': 200, 'decimal_places': 4},
@@ -91,7 +99,7 @@ if __name__ == '__main__':
                    'TRON':   {'period': 5, 'volume': 2500, 'decimal_places': 5},}
 
     # define strategy for every instrumewnt and period
-    strategy_list = create_strategy_list(instruments_crypto_weekend_test)
+    strategy_list = create_strategy_list(instruments_inside_bar)
 
     # possible trading intervals in minutes.
     # currently should be not bigger then 60, cause of comparing with datetime minutes.
