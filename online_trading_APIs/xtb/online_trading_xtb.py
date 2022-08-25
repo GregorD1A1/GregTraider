@@ -40,10 +40,13 @@ class OnlineStrategy(InsideBarDailyFrequent):
     def close(self):
         arguments = {'openedOnly': True}
         resp = self.client.commandExecute('getTrades', arguments)
+        print(f'chcę zamknąć pozycję: {self.signature}')
         # iterujemy przez listę słowników z pozycjami
         for position in resp['returnData']:
+            print(f"mamy wśród aktywnych pozycji: {position['customComment']}")
             # sprawdzamy, czy mamy taką pozycję
             if position['customComment'] == self.signature:
+                print(f'zamykam: {self.signature}')
                 order_nr = position['order']
                 self.trade_transaction(self.symbol, type=2, order=order_nr)
 
@@ -79,7 +82,7 @@ class OnlineStrategy(InsideBarDailyFrequent):
         arguments = {'tradeTransInfo': tradeTransInfo}
         self.client.commandExecute('tradeTransaction', arguments)
 
-    def subscribe_price(self, interval_ms, positive_trsh, negative_trsh):
+    def subscribe_price(self, interval_ms):
         print('subskrybuję ' + self.symbol)
         # check if not overwriting existing client
         self.sclient = APIStreamClient(ssId=self.ssid, tickFun=self.process_tick_subscribe_data)

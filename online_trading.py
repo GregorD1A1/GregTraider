@@ -118,8 +118,8 @@ if __name__ == '__main__':
         # to not repeat trading for same minute
         if current_minute == prev_minute:
             continue
-        # ping every 10 minutes, 3 is for not colliding with strategies
-        if current_minute % 10 == 3:
+        # ping every 5 minutes, 3 is for not colliding with strategies
+        if current_minute % 5 == 3:
             ping(client)
         # main trading staff
         trading_all_strategies(strategy_list, trading_periods, current_minute, client, ssid)

@@ -62,6 +62,7 @@ class GregTrade(Strategy123):
     def next(self, dataframe, client):
         # closing positions if stoploss/takeprofit values was pierced
         self.close_positions_by_sl_tp()
+        self.open_pos_by_subscription_or_turn_it_off()
         super(GregTrade, self).next(dataframe, client)
 
     def open_long(self, stop_loss=None, take_profit=None, volume=0.01, opening_price=None):
@@ -122,18 +123,24 @@ class GregTrade(Strategy123):
                 elif position.take_profit is not None and self.low_price <= position.take_profit:
                     self.close(position, position.take_profit)
 
-    def subscribe_price(self, _, positive_trsh, negative_trsh):
-        self.negative_trsh = negative_trsh
-        self.positive_trsh = positive_trsh
-
     def open_pos_by_subscription_or_turn_it_off(self):
-        if self.high_price > self.negative_trsh and self.low_price < self.negative_trsh:
-            self.finish_subscription()
-        elif self.high_price > self.positive_trsh and self.low_price < self.positive_trsh:
-            if self.subscription_side == 'up':
-                self.open_long(opening_price=self.positive_trsh)
-            elif self.subscription_side == 'down':
-                self.open_short(opening_price=self.positive_trsh)
+        # closing old subscriptions
+        if self.subscription_side is not None:
+            if self.high_price > self.sub_negative_trsh and self.low_price < self.sub_negative_trsh:
+                self.finish_subscription()
+        # open new subscriptions
+        if self.subscription_side == 'up':
+            if self.high_price > self.sub_positive_trsh and self.low_price < self.sub_positive_trsh:
+                self.open_long(opening_price=self.sub_positive_trsh)
+        elif self.subscription_side == 'down':
+            if self.high_price > self.sub_positive_trsh and self.low_price < self.sub_positive_trsh:
+                self.open_short(opening_price=self.sub_positive_trsh)
+
+    def subscribe_price(self, timeout):
+        pass
+
+    def unsubscribe_price(self):
+        pass
 
     def finish_subscription(self):
         super(GregTrade, self).finish_subscription()
@@ -236,5 +243,5 @@ class GregTrade(Strategy123):
 
 
 if __name__ == '__main__':
-    backtester = GregTrade('historical_data/GOLD_60m.csv', min_structure_height=25)
+    backtester = GregTrade('historical_data/US500_5m.csv', min_structure_height=10)
     backtester.run_simulation()

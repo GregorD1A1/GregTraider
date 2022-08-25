@@ -53,13 +53,9 @@ class Strategy123():
         if not self.check_height(point_1_idx, current_idx):
             return
 
-        # check if current price not lowest then point 3 minimum
-        if not self.check_current_price_not_below_point_3(dataframe, current_idx, structure_side):
-            return
-
-        # check if program not looking for same formation
-        point_1_time = dataframe.iloc[point_1_idx]["DateTime"]
-        if point_1_time == self.prev_point_1_time:
+        # check if program not looking for the formation on which transaction already made
+        self.point_1_time = dataframe.iloc[point_1_idx]["DateTime"]
+        if self.point_1_time == self.prev_point_1_time:
             return
 
         # check if program is returning for point 3 is high enough
@@ -73,15 +69,23 @@ class Strategy123():
         #elif structure_side == 'high' and dataframe['Close'][current_idx] > dataframe['High'][point_2_idx]:
         #    return
 
-        self.prev_point_1_time = point_1_time
+
 
         self.subscribed_strucure_side = structure_side
         self.point_3_high = dataframe['High'][current_idx]
         self.point_3_low = dataframe['Low'][current_idx]
         if structure_side == 'low':
-            self.subscribe_price(1000, self.point_3_high, self.point_3_low)
+            # only for backtesting
+            self.sub_positive_trsh = self.point_3_high
+            self.sub_negative_trsh = self.point_3_low
+            self.subscription_side = 'up'
+            # only for online trading
+            self.subscribe_price(1000)
         else:
-            self.subscribe_price(1000, self.point_3_low, self.point_3_high)
+            self.sub_positive_trsh = self.point_3_low
+            self.sub_negative_trsh = self.point_3_high
+            self.subscription_side = 'down'
+            self.subscribe_price(1000)
 
         print(f'Point1: {dataframe.iloc[point_1_idx]["DateTime"]}, Point2: {dataframe.iloc[point_2_idx]["DateTime"]}, '
               f'Point3: {dataframe.iloc[current_idx]["DateTime"]} '
@@ -126,11 +130,16 @@ class Strategy123():
             return False
 
         if structure_side == 'low':
+            # check if point 3 is not below point 1
+            if dataframe['Low'].iloc[current_idx] < dataframe['Low'].iloc[point1_idx]:
+                return False
             # finding low from point 2 up to last bar (current_idx+1 is for the current bar take place)
             searching_subframe = dataframe['Low'].iloc[point2_idx+1: current_idx+1]
             if current_idx == searching_subframe.idxmin():
                 return True
         else:
+            if dataframe['High'].iloc[current_idx] > dataframe['High'].iloc[point1_idx]:
+                return False
             searching_subframe = dataframe['High'].iloc[point2_idx+1: current_idx+1]
             if current_idx == searching_subframe.idxmax():
                 return True
@@ -183,15 +192,6 @@ class Strategy123():
         else:
             return dataframe['High'].iloc[point_1_idx] - dataframe['Low'].iloc[point_2_idx]
 
-    def check_current_price_not_below_point_3(self, dataframe, point_3_idx, structure_side):
-        current_price = dataframe['Close'].iloc[-1]
-        if structure_side == 'low':
-            point_3_lowest_price = dataframe['Low'].iloc[point_3_idx]
-            return current_price > point_3_lowest_price
-        else:
-            point_3_highest_price = dataframe['High'].iloc[point_3_idx]
-            return current_price < point_3_highest_price
-
     def check_return_height_for_point_3(self, dataframe, point_1_idx, point_2_idx, point_3_idx, structure_side):
         formation_height = self.formation_height(dataframe, point_1_idx, point_2_idx, structure_side)
         if structure_side == 'low':
@@ -227,3 +227,5 @@ class Strategy123():
     def finish_subscription(self):
         self.subscribed_strucure_side = None
         self.can_unsubscribe_price_flag = True
+        # for not open another position on same formation
+        self.prev_point_1_time = self.point_1_time
