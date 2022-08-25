@@ -303,7 +303,10 @@ def procProfitExample(msg):
 # example function for processing news from Streaming socket
 def procNewsExample(msg): 
     print("NEWS: ", msg)
-    
+
+def ping(client):
+    client.commandExecute('ping')
+
 def login(userId, password):
     # create & connect to RR socket
     client = APIClient()

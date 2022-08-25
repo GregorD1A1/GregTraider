@@ -38,6 +38,7 @@ class GregTrade(Strategy123):
         self.opened_positions = []
         self.closed_positions = []
         self.can_unsubscribe_price_flag = False
+        self.subscription_side = None
 
 
     def run_simulation(self):
@@ -63,8 +64,9 @@ class GregTrade(Strategy123):
         self.close_positions_by_sl_tp()
         super(GregTrade, self).next(dataframe, client)
 
-    def open_long(self, stop_loss=None, take_profit=None, volume=0.01):
-        opening_price = self.close_price * (1 + self.transaction_costs)
+    def open_long(self, stop_loss=None, take_profit=None, volume=0.01, opening_price=None):
+        if opening_price is None: opening_price = self.close_price
+        opening_price = opening_price * (1 + self.transaction_costs)
         self.cash -= opening_price * self.operating_volume
         position = Position('long', opening_price, self.operating_volume, opening_time=self.date_time,
                             stop_loss=stop_loss, take_profit=take_profit)
@@ -72,8 +74,9 @@ class GregTrade(Strategy123):
         self.owned_volume += self.operating_volume
         self.transaction_time = self.index
 
-    def open_short(self, stop_loss=None, take_profit=None, volume=0.01):
-        opening_price = self.close_price * (1 - self.transaction_costs)
+    def open_short(self, stop_loss=None, take_profit=None, volume=0.01, opening_price=None):
+        if opening_price is None: opening_price = self.close_price
+        opening_price = opening_price * (1 - self.transaction_costs)
         self.cash += opening_price * self.operating_volume
         position = Position('short', opening_price, self.operating_volume, opening_time=self.date_time,
                             stop_loss=stop_loss, take_profit=take_profit)
@@ -127,7 +130,14 @@ class GregTrade(Strategy123):
         if self.high_price > self.negative_trsh and self.low_price < self.negative_trsh:
             self.finish_subscription()
         elif self.high_price > self.positive_trsh and self.low_price < self.positive_trsh:
-            open_position() tylko którą?
+            if self.subscription_side == 'up':
+                self.open_long(opening_price=self.positive_trsh)
+            elif self.subscription_side == 'down':
+                self.open_short(opening_price=self.positive_trsh)
+
+    def finish_subscription(self):
+        super(GregTrade, self).finish_subscription()
+        self.subscription_side = None
 
     ## plotting functions
     def plot_memory_init(self):

@@ -45,16 +45,16 @@ class Strategy123():
         if not self.check_if_current_idx_is_potential_point_3(dataframe, current_idx, point_1_idx, point_2_idx, structure_side):
             return
 
-        if not self.confirm_strong_movement_before_point_1(dataframe, point_1_idx, point_2_idx, point_3_idx, structure_side):
+        if not self.confirm_strong_movement_before_point_1(dataframe, point_1_idx, point_2_idx, current_idx, structure_side):
             return
 
         self.structure_height = self.formation_height(dataframe, point_1_idx, point_2_idx, structure_side)
         # check if structure is high enough
-        if not self.check_height(point_1_idx, point_3_idx):
+        if not self.check_height(point_1_idx, current_idx):
             return
 
         # check if current price not lowest then point 3 minimum
-        if not self.check_current_price_not_below_point_3(dataframe, point_3_idx, structure_side):
+        if not self.check_current_price_not_below_point_3(dataframe, current_idx, structure_side):
             return
 
         # check if program not looking for same formation
@@ -63,10 +63,10 @@ class Strategy123():
             return
 
         # check if program is returning for point 3 is high enough
-        if not self.check_return_height_for_point_3(dataframe, point_1_idx, point_2_idx, point_3_idx, structure_side):
+        if not self.check_return_height_for_point_3(dataframe, point_1_idx, point_2_idx, current_idx, structure_side):
             return
 
-        self.calculate_stoploss_and_target_values(dataframe, point_1_idx, point_2_idx, point_3_idx, structure_side)
+        self.calculate_stoploss_and_target_values(dataframe, point_1_idx, point_2_idx, current_idx, structure_side)
 
         #if structure_side == 'low' and dataframe['Close'][current_idx] < dataframe['Low'][point_2_idx]:
         #    return
@@ -84,7 +84,7 @@ class Strategy123():
             self.subscribe_price(1000, self.point_3_low, self.point_3_high)
 
         print(f'Point1: {dataframe.iloc[point_1_idx]["DateTime"]}, Point2: {dataframe.iloc[point_2_idx]["DateTime"]}, '
-              f'Point3: {dataframe.iloc[point_3_idx]["DateTime"]}, Current: {dataframe.iloc[current_idx]["DateTime"]} '
+              f'Point3: {dataframe.iloc[current_idx]["DateTime"]} '
               f'Side: {structure_side}')
 
     def find_point_1(self, dataframe, current_idx, structure_side):

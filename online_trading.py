@@ -3,7 +3,7 @@ from online_trading_APIs.xtb.download_csv_xtb import get_dataframe
 import time
 from datetime import datetime
 from online_trading_APIs.xtb.passes import userId, password
-from online_trading_APIs.xtb.xAPIConnector import login
+from online_trading_APIs.xtb.xAPIConnector import login, ping
 
 
 def create_strategy_list(instruments):
@@ -118,6 +118,9 @@ if __name__ == '__main__':
         # to not repeat trading for same minute
         if current_minute == prev_minute:
             continue
+        # ping every 10 minutes, 3 is for not colliding with strategies
+        if current_minute % 10 == 3:
+            ping(client)
         # main trading staff
         trading_all_strategies(strategy_list, trading_periods, current_minute, client, ssid)
 
