@@ -15,6 +15,7 @@ def get_dataframe(client, symbol, period=5, back_time=500000):
     resp = client.commandExecute('getChartLastRequest', arguments=arguments)
 
     decimal_places = resp['returnData']['digits']
+    print(decimal_places)
     decimal_places_divider = 10 ** decimal_places
 
     data = []

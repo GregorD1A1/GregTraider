@@ -5,6 +5,13 @@ import time
 from datetime import datetime
 from online_trading_APIs.xtb.passes import userId, password
 from online_trading_APIs.xtb.xAPIConnector import login
+import logging
+
+
+# logger properties
+logger = logging.getLogger("jsonSocket")
+FORMAT = '[%(asctime)-15s] %(message)s'
+logging.basicConfig(format=FORMAT)
 
 
 def create_base_strategy_list(instruments):
@@ -37,6 +44,7 @@ def wait_for_not_too_frequent_sending_requests(prev_time):
         time.sleep(0.05)
 
 def trading_strategies(strategy_list, client, ssid):
+    logger.info("I'm alive!")
     # ping server for case there will be no active strategies
     client.commandExecute('ping')
     # initializing time difference counter
@@ -72,32 +80,31 @@ if __name__ == '__main__':
     instruments_inside_bar = {
         # metal commodities
         'GOLD':  {'period_base': 1440, 'period_freq': 5, 'volume': 0.05, 'decimal_places': 2},
-        'SILVER': {'period_base': 1440, 'period_freq': 5, 'volume': 0.02, 'decimal_places': 3},
+        'SILVER': {'period_base': 1440, 'period_freq': 5, 'volume': 0.05, 'decimal_places': 3},
         # energy commodities
-        'OIL':   {'period_base': 1440, 'period_freq': 5, 'volume': 0.02, 'decimal_places': 2},
-        'OIL.WTI': {'period_base': 1440, 'period_freq': 5, 'volume': 0.02, 'decimal_places': 2},
+        'OIL':   {'period_base': 1440, 'period_freq': 5, 'volume': 0.04, 'decimal_places': 2},
+        'OIL.WTI': {'period_base': 1440, 'period_freq': 5, 'volume': 0.05, 'decimal_places': 2},
         'NATGAS':   {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 3},
-        'GASOLINE': {'period_base': 1440, 'period_freq': 5, 'volume': 0.02, 'decimal_places': 2},
+        'GASOLINE': {'period_base': 1440, 'period_freq': 5, 'volume': 0.04, 'decimal_places': 2},
         # agricultural commodities
         'SOYBEAN': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 2},
-        'CORN': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 2},
         'COFFEE': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 2},
         'WHEAT': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 2},
         # indexes Europe
-        'NED25': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 2},
-        'SUI20': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 0},
-        'DE30': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 1},
-        'EU50': {'period_base': 1440, 'period_freq': 5, 'volume': 0.11, 'decimal_places': 1},
-        'W20': {'period_base': 1440, 'period_freq': 5, 'volume': 0.3, 'decimal_places': 1},
+        'NED25': {'period_base': 1440, 'period_freq': 5, 'volume': 0.03, 'decimal_places': 2},
+        'SUI20': {'period_base': 1440, 'period_freq': 5, 'volume': 0.02, 'decimal_places': 0},
+        'DE30': {'period_base': 1440, 'period_freq': 5, 'volume': 0.02, 'decimal_places': 1},
+        'EU50': {'period_base': 1440, 'period_freq': 5, 'volume': 0.24, 'decimal_places': 1},
+        'W20': {'period_base': 1440, 'period_freq': 5, 'volume': 0.5, 'decimal_places': 1},
         # indexes America
-        'US100': {'period_base': 1440, 'period_freq': 5, 'volume': 0.02, 'decimal_places': 2},
+        'US100': {'period_base': 1440, 'period_freq': 5, 'volume': 0.03, 'decimal_places': 2},
         # indexes Asia and Oceania
-        'AUS200': {'period_base': 1440, 'period_freq': 5, 'volume': 0.02, 'decimal_places': 0},
+        'AUS200': {'period_base': 1440, 'period_freq': 5, 'volume': 0.05, 'decimal_places': 0},
         'JAP225': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 0},
-        'CH50cash': {'period_base': 1440, 'period_freq': 5, 'volume': 0.01, 'decimal_places': 1},
+        'CH50cash': {'period_base': 1440, 'period_freq': 5, 'volume': 0.03, 'decimal_places': 1},
         # krypto
-        'ETHEREUM': {'period_base': 1440, 'period_freq': 5, 'volume': 0.1, 'decimal_places': 3},
-        'TRON': {'period_base': 1440, 'period_freq': 5, 'volume': 2500, 'decimal_places': 5},
+        'ETHEREUM': {'period_base': 1440, 'period_freq': 5, 'volume': 0.55, 'decimal_places': 3},
+        'BITCOIN': {'period_base': 1440, 'period_freq': 5, 'volume': 0.04, 'decimal_places': 2},
         }
 
     # define strategy for every instrumewnt and period
@@ -111,7 +118,7 @@ if __name__ == '__main__':
     # write down your own login data and comment login data import at top of file
     client, ssid = login(userId, password)
     # set timeout for requests to avoid program suspension if server is not responding
-    client.timeout = 100
+    client.timeout = 300
 
     while True:
         current_minute = datetime.now().time().minute

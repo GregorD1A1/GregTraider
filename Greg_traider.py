@@ -1,4 +1,5 @@
-from strategies.strategy_1_2_3 import Strategy123
+#from strategies.strategy_1_2_3 import Strategy123
+from strategies.strategy_123 import Strategy123
 from strategies.Inside_bar_strategy import InsideBar
 import pandas as pd
 from plotly.subplots import make_subplots
@@ -19,8 +20,8 @@ class Position():
 
 
 class GregTrade(Strategy123):
-    def __init__(self, data_path, min_structure_height):
-        super().__init__(min_structure_height)
+    def __init__(self, data_path):#, min_structure_height):
+        super().__init__()#min_structure_height)
         self.input_data = pd.read_csv(data_path)
 
         self.cash = 0
@@ -47,11 +48,11 @@ class GregTrade(Strategy123):
             if self.index < self.simulation_delay_period:
                 continue
 
-            self.open_price = row['Open']
-            self.high_price = row['High']
-            self.low_price = row['Low']
-            self.close_price = row['Close']
-            self.date_time = row['DateTime']
+            self.open_price = row.Open
+            self.high_price = row.High
+            self.low_price = row.Low
+            self.close_price = row.Close
+            self.date_time = row.DateTime
             # strategy execution
             self.next(self.input_data[:self.index + 1], client=None)
             self.add_data_for_plotting(self.index - self.simulation_delay_period, row)
@@ -86,6 +87,7 @@ class GregTrade(Strategy123):
         self.transaction_time = self.index
 
     def close(self, position, final_price=None):
+        print('Closing position')
         if final_price is None:
             final_price = self.close_price
 
@@ -174,7 +176,7 @@ class GregTrade(Strategy123):
         momentum_row = 6
         # white here indicators you want to show with apropriate rows
         indicators_to_show = {'Cash': cash_row, 'True cash': cash_row, 'High': main_graph_row,
-            'Low': main_graph_row, 'Close': main_graph_row, 'Open': momentum_row}
+            'Low': main_graph_row, 'Close': main_graph_row, 'ATR': momentum_row}
 
         self.plot_data_df = self.plot_data_df.set_index('DateTime')
         plot_layout = [[{}],
@@ -243,5 +245,5 @@ class GregTrade(Strategy123):
 
 
 if __name__ == '__main__':
-    backtester = GregTrade('historical_data/US500_5m.csv', min_structure_height=10)
+    backtester = GregTrade('historical_data/US500_5m.csv')#, min_structure_height=10)
     backtester.run_simulation()

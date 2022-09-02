@@ -1,5 +1,6 @@
 import pandas as pd
 import pandas_ta as pdta
+from strategies.utilities import atr_stoploss_margin
 
 
 class Strategy123():
@@ -11,16 +12,20 @@ class Strategy123():
         self.max_formation_len = 20
         self.min_formation_height = 2.5
 
-        self.plot_indicators_dict = {}
+        self.plot_indicators_dict = {'ATR': None}
+
+        self.max_price = 0
 
         # delay for initial indicators calculation
         self.simulation_delay_period = self.nr_of_bars_to_check_minimum
 
     def next(self, dataframe, client):
         # put here all indicators you want to plot in Gregtraider
-        self.plot_indicators_dict = {}
+        self.atr = pdta.atr(dataframe.High, dataframe.Low, dataframe.Close, length=20).iloc[-1]
+        self.plot_indicators_dict = {'ATR': self.atr}
         self.client = client
         # write stuff here
+        self.check_stoploss(dataframe)
         self.open_123(dataframe)
 
     def open_123(self, dataframe):
@@ -43,7 +48,23 @@ class Strategy123():
             return
 
         print('opening long position...')
-        self.open_long()
+        takeprofit = dataframe.Close[current_idx] + 1 * self.atr
+        self.open_long(take_profit=takeprofit)
+        self.position_opened = True
+
+    def check_stoploss(self, dataframe):
+        if self.opened_positions == []:
+            return
+        current_max_price = dataframe.High.iloc[-1]
+        if current_max_price > self.max_price:
+            self.max_price = current_max_price
+
+        stoploss = self.max_price - atr_stoploss_margin(dataframe, 2)
+
+        current_price = dataframe.Close.iloc[-1]
+        if current_price < stoploss:
+            self.close(self.opened_positions[0])
+            self.max_price = 0
 
     def find_point_1(self, dataframe, current_idx):
         minimum_idx = dataframe['Low'][-self.nr_of_bars_to_check_minimum:].idxmin()

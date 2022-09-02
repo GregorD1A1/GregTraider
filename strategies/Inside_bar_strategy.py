@@ -1,6 +1,6 @@
 import pandas as pd
 import pandas_ta as pdta
-from strategies.utilities import atr_based_stoploss
+#from strategies.utilities import atr_based_stoploss
 
 
 class InsideBar():

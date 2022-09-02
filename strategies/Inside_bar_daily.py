@@ -11,6 +11,7 @@ logger = logging.getLogger("jsonSocket")
 FORMAT = '[%(asctime)-15s] %(message)s'
 logging.basicConfig(format=FORMAT)
 
+
 class InsideBarDailyBase():
     def __init__(self, symbol, period):
         # parameters
@@ -32,7 +33,7 @@ class InsideBarDailyBase():
         # to avoid calculations if during handling opened position
         if self.transaction_state == 'opened':
             return
-        print('checking strategy for ' + self.symbol)
+        logger.info('checking strategy for ' + self.symbol)
         current_bar_idx, prev_bar_idx = self.get_bar_indexes(dataframe)
         # check if current bar is inside bar
         if not (dataframe['Low'][current_bar_idx] >= dataframe['Low'][prev_bar_idx] and \
@@ -45,16 +46,17 @@ class InsideBarDailyBase():
         self.calculate_bar_lengthes(dataframe)
         #if not self.length_filter():
         #    return
+        logger.info('Raw inside bar found, ' + self.symbol)
         # direction filter
         self.direction = self.close_price_direction_filter(dataframe)
         if self.direction is None: return
-        logger.info('inside bar found, ' + self.symbol)
+        logger.info('Filtered inside bar found, ' + self.symbol)
         if self.direction == 'down':# and self.slient == None # check if some price not subscribed already
-            self.open_trsh = dataframe['Low'][self.inside_bar_idx] - 0.05 * self.inside_bar_length
+            self.open_trsh = dataframe['Low'][self.inside_bar_idx] - 0.02 * self.inside_bar_length
             self.opposite_trsh = dataframe['High'][self.inside_bar_idx]
             self.transaction_state = 'ready for open'
         elif self.direction == 'up':
-            self.open_trsh = dataframe['High'][self.inside_bar_idx] + 0.05 * self.inside_bar_length
+            self.open_trsh = dataframe['High'][self.inside_bar_idx] + 0.02 * self.inside_bar_length
             self.opposite_trsh = dataframe['Low'][self.inside_bar_idx]
             self.transaction_state = 'ready for open'
 
@@ -96,6 +98,7 @@ class InsideBarDailyBase():
             if i > 10:
                 raise Exception('No last bar found')
         return day, day_str
+
 
 class InsideBarDailyFrequent():
     def __init__(self, **kwargs):
@@ -144,13 +147,13 @@ class InsideBarDailyFrequent():
                 self.finish_subscription()
         elif self.base_strategy.direction == 'down':
             if self.base_strategy.open_trsh > actual_price > \
-                    self.base_strategy.open_trsh + 0.2 * self.base_strategy.inside_bar_length:
+                    self.base_strategy.open_trsh - 0.2 * self.base_strategy.inside_bar_length:
                 logger.info('open short')
                 # set platform stoploss for case of errors or server problems
                 self.open_short(volume=self.volume, stop_loss=self.max_price + self.base_strategy.inside_bar_length * 0.05)
                 self.base_strategy.transaction_state = 'opened'
             elif actual_price > self.base_strategy.opposite_trsh or \
-                    actual_price <= self.base_strategy.open_trsh + 0.2 * self.base_strategy.inside_bar_length:
+                    actual_price <= self.base_strategy.open_trsh - 0.2 * self.base_strategy.inside_bar_length:
                 logger.info('Going wrong direction. Closing subscription')
                 self.base_strategy.transaction_state = 'closed'
                 self.finish_subscription()
@@ -172,7 +175,8 @@ class InsideBarDailyFrequent():
                 self.finish_subscription()
 
     def finish_subscription(self):
-        logger.info('finish sub')
         self.min_price = float('inf')
         self.max_price = 0
         self.base_strategy.transaction_state = 'closed'
+        logger.info('finish sub')
+

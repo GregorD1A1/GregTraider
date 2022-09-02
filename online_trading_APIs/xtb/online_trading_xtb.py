@@ -1,9 +1,16 @@
 from strategies.strategy_1_2_3 import Strategy123
 from strategies.Inside_bar_strategy import InsideBar
-from strategies.Inside_bar_daily import  InsideBarDailyFrequent
+from strategies.Inside_bar_daily import InsideBarDailyFrequent
 from online_trading_APIs.xtb.xAPIConnector import APIStreamClient
 from datetime import datetime, timedelta
 import time
+import logging
+
+
+# logger properties
+logger = logging.getLogger("jsonSocket")
+FORMAT = '[%(asctime)-15s] %(message)s'
+logging.basicConfig(format=FORMAT)
 
 
 class OnlineStrategy(InsideBarDailyFrequent):
@@ -40,15 +47,15 @@ class OnlineStrategy(InsideBarDailyFrequent):
     def close(self):
         arguments = {'openedOnly': True}
         resp = self.client.commandExecute('getTrades', arguments)
-        print(f'chcę zamknąć pozycję: {self.signature}')
+        logger.info(f'chcę zamknąć pozycję: {self.signature}')
         # iterujemy przez listę słowników z pozycjami
         for position in resp['returnData']:
-            print(f"mamy wśród aktywnych pozycji: {position['customComment']}")
+            logger.info(f"mamy wśród aktywnych pozycji: {position['customComment']}")
             # sprawdzamy, czy mamy taką pozycję
             if position['customComment'] == self.signature:
-                print(f'zamykam: {self.signature}')
+                logger.info(f'zamykam: {self.signature}')
                 order_nr = position['order']
-                self.trade_transaction(self.symbol, type=2, order=order_nr)
+                self.trade_transaction(self.symbol, type=2, order=order_nr, volume=self.volume)
 
     # API related fcns
     def opened_pos_dir(self):
