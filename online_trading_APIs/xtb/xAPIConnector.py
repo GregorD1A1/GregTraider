@@ -92,12 +92,14 @@ class JsonSocket(object):
                 time.sleep(API_SEND_TIMEOUT/1000)
 
     def _read(self, bytesSize=4096):
+        logger.info('Read function started')
         if not self.socket:
             raise RuntimeError("socket connection broken")
         while True:
             char = self.conn.recv(bytesSize).decode()
             self._receivedData += char
             try:
+                logger.info('trying to read')
                 (resp, size) = self._decoder.raw_decode(self._receivedData)
                 if size == len(self._receivedData):
                     self._receivedData = ''
@@ -106,9 +108,10 @@ class JsonSocket(object):
                     self._receivedData = self._receivedData[size:].strip()
                     break
             except ValueError as e:
+                logger.info('Runtime error')
                 continue
         #logger.info('Received: ' + str(resp))
-        #logger.info('Received: data')
+        logger.info('End of read function')
         return resp
 
     def _readObj(self):
