@@ -1,15 +1,15 @@
-Gregtraider is a simple framework for automated online trading and trading strategy backtesting on historical data. You can ask: "Ok, there are many libraries for strategy backtesting, why should I use Gregtraider?". Let me show you some pros of it.
+Gregtraider is a user-friendly framework designed for automated online trading and trading strategy backtesting using historical data. Unlike many other strategy backtesting libraries, Gregtraider offers several unique advantages that make it an attractive option for traders.
 
 ## Advantages of Gregtraider:
-1. You should write your strategy only once. Use single strategy class for backtesting and online trading.
-2. Lack of any complicated core, that obstructing debugging.
-3. Nice plotly charts.
-4. Easy to modificate plots and show on them anything you want.
+1. Write your strategy only once: Gregtraider allows you to use a single strategy class for both backtesting and online trading, saving you time and effort.
+2. No complex core: Gregtraider is designed without any complicated core components, making it easier to debug and understand.
+3. Attractive plotly charts: Visualize your data using nice and clean plotly charts.
+4. Easy customization: Modify plots easily and display any information you want.
 
+The primary benefit of using Gregtraider is that you only need to write and adjust your trading strategy once for backtesting, and it is immediately ready for real trading. This saves you the tedious work of rewriting and testing your strategy multiple times.
 
-Ecpecially first advantage is crucial for me.  For many existing frameworks you should write dedicated strategy, adjust it, after that rewrite it the way tailored for online trading, test it on demo account for some time if there no bugs appeared during rewriting to finally make it trade. Gregtraider sves you many tedeous work. You just preparing and ajusting strategy by backtesting, and it's already ready for real trading.
+To start using Gregtraider, you'll need historical trading records saved as a .csv file with columns named 'DateTime', 'Close', 'Open', 'Low', 'High', and 'Volume'. You can obtain this data from your broker by implementing a "download_csv.py" file or using online_trading_APIs/xtb/download_csv.py if your broker is XTB. Alternatively, you can download data from sources such as Yahoo Finance and manually rename columns, or use the pre-compiled data in the historical_data/ catalog, which is an excellent option for beginners.
 
-How to use:
-To use gregtraider you need historical traiding records saved as .csv file with colum names: 'DateTime', 'Close', 'Open', 'Low', 'High', 'Volume'. I recommend you to implement "download_csv.py" file to get that data from your broker or use online_trading_APIs/xtb/download_csv.py if your broker is xtb. You also can download data from somwhere in internet (ex. Yachoo finance) and rename columns manually. Or you can use already prepared data in historical_data/ catalog, that's best option for beginners.
+Once you've acquired the necessary historical data, your primary task will be to write and implement your trading strategy. After setting up your broker API, creating and adjusting strategies will be the main focus of your work.
 
-Next you need to write your strategy. Basically, after implementing all things related to your broker API, inventing and adjusting strategies will be all the work you will need to do.
+In summary, Gregtraider streamlines the process of online trading and strategy backtesting by allowing you to write your strategy only once, offering a simple core for easy debugging, and providing visually appealing plotly charts. Give Gregtraider a try, and you'll find it an invaluable tool for your trading ventures.
